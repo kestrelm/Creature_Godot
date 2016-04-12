@@ -35,6 +35,10 @@ public:
     void load_json(const String& filename_in);
     
     void update_animation(float delta);
+    
+    void blend_to_animation(String animation_name, float blend_delta);
+    
+    void set_should_loop(bool flag_in);
 
 	void set_color(const Color& p_color);
 	Color get_color() const;
