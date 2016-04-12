@@ -11,7 +11,6 @@ class CreatureGodot :  public Node2D {
 
 	OBJ_TYPE(CreatureGodot,Node2D);
 
-	DVector<Vector2> uv;
     Vector<Vector2> points;
 	Vector<Vector2> uvs;
     Vector<int> indices;
