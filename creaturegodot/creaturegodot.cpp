@@ -1,4 +1,5 @@
 #include "creaturegodot.h"
+#include "globals.h"
 #include <string>
 #include <iostream>
 
@@ -8,6 +9,39 @@ static std::map<std::string, std::shared_ptr<CreatureModule::CreatureLoadDataPac
 static std::string GetAnimationToken(const std::string& filename_in, const std::string& name_in)
 {
 	return filename_in + std::string("_") + name_in;
+}
+
+static bool 
+LoadDataPacket(const std::string& filename_in)
+{
+	if (global_load_data_packets.count(filename_in) > 0)
+	{
+		// file already loaded, just return
+		return true;
+	}
+	//////////////////////////////////////////////////////////////////////////
+	//Changed!
+	//////////////////////////////////////////////////////////////////////////
+		std::shared_ptr<CreatureModule::CreatureLoadDataPacket> new_packet =
+			std::make_shared<CreatureModule::CreatureLoadDataPacket>();
+
+		bool is_zip = false;
+		if (filename_in.substr(filename_in.find_last_of(".") + 1) == "zip") {
+			is_zip = true;
+		}
+
+		if (is_zip)
+		{
+			// load zip archive
+			CreatureModule::LoadCreatureZipJSONData(filename_in, *new_packet);
+		}
+		else {
+			// load regular JSON
+			CreatureModule::LoadCreatureJSONData(filename_in, *new_packet);
+		}
+		global_load_data_packets[filename_in] = new_packet;
+
+		return true;
 }
 
 static void load_animation(const std::string& filename_in, const std::string& name_in)
@@ -47,18 +81,30 @@ static bool add_loaded_animation(CreatureModule::CreatureManager * creature_mana
 void 
 CreatureGodot::load_json(const String& filename_in)
 {
-    CreatureModule::CreatureLoadDataPacket json_data;
-    std::string load_filename(filename_in.utf8());
-    CreatureModule::LoadCreatureJSONData(load_filename, json_data);
-    auto cur_creature = std::shared_ptr<CreatureModule::Creature>(new CreatureModule::Creature(json_data));
+    auto global_path = Globals::get_singleton()->globalize_path(filename_in);
+    std::cout<<"CreatureGodot::load_json() - Loading file: "<<global_path.utf8()<<std::endl;
+    
+    std::string load_filename(global_path.utf8());
+    auto can_load = LoadDataPacket(load_filename);
+    if(!can_load)
+    {
+        std::cout<<"CreatureGodot::load_json() - ERRROR! Could not load file: "<<load_filename<<std::endl;
+        return;
+    }
+    std::cout<<"CreatureGodot::load_json() - Finished loading file: "<<load_filename<<std::endl;
+
+    auto json_data = global_load_data_packets[load_filename];
+    auto cur_creature = std::shared_ptr<CreatureModule::Creature>(new CreatureModule::Creature(*json_data));    
     manager = std::shared_ptr<CreatureModule::CreatureManager> (new CreatureModule::CreatureManager(cur_creature));
     
     auto all_animation_names = manager->GetCreature()->GetAnimationNames();
     auto first_animation_name = all_animation_names[0];
     for (auto& cur_name : all_animation_names)
 	{
+        std::cout<<"CreatureGodot::load_json() - Trying to load animation: "<<cur_name<<std::endl;
 		load_animation(load_filename, cur_name);
 		add_loaded_animation(manager.get(), load_filename, cur_name);
+        std::cout<<"CreatureGodot::load_json() - Loaded animation: "<<cur_name<<std::endl;
 	}
 }
 
