@@ -16,6 +16,8 @@ class CreatureGodot :  public Node2D {
     Vector<int> indices;
 	Color color;
 	Ref<Texture> texture;
+    String asset_filename;
+    float anim_speed;
     
 	Vector2 offset;
 	mutable bool rect_cache_dirty;
@@ -38,6 +40,12 @@ public:
     void blend_to_animation(String animation_name, float blend_delta);
     
     void set_should_loop(bool flag_in);
+    
+    void set_asset_filename(const String& filename_in);
+    String get_asset_filename() const;
+    
+    void set_anim_speed(float value_in);
+    float get_anim_speed() const;
 
 	void set_color(const Color& p_color);
 	Color get_color() const;

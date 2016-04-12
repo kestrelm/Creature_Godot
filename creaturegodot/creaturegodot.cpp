@@ -106,6 +106,8 @@ CreatureGodot::load_json(const String& filename_in)
 		add_loaded_animation(manager.get(), load_filename, cur_name);
         std::cout<<"CreatureGodot::load_json() - Loaded animation: "<<cur_name<<std::endl;
 	}
+    
+    manager->SetActiveAnimationName(first_animation_name);
 }
 
 void CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
@@ -119,11 +121,22 @@ void CreatureGodot::set_should_loop(bool flag_in)
     manager->SetShouldLoop(flag_in);
 }
 
+void 
+CreatureGodot::set_anim_speed(float value_in)
+{
+    anim_speed = value_in;
+}
+
+float 
+CreatureGodot::get_anim_speed() const{
+    return anim_speed;   
+}
+
 void CreatureGodot::update_animation(float delta)
 {
     if(manager)
     {
-        manager->Update(delta);
+        manager->Update(delta * anim_speed);
         
         // resize points, uvs and indices array
         if(points.size() == 0)
@@ -150,13 +163,15 @@ void CreatureGodot::update_animation(float delta)
         {
             glm::float32 cur_x = cur_pts[i * 3];
             glm::float32 cur_y = cur_pts[i * 3 + 1];
-            points[i] = Vector2(cur_x, cur_y);
+            points[i] = Vector2(cur_x, -cur_y);
             
             glm::float32 cur_u = cur_uvs[i * 2];
             glm::float32 cur_v = cur_uvs[i * 2 + 1];
             uvs[i] = Vector2(cur_u, cur_v);
 
         }
+        
+        update();
     }
 }
 
@@ -222,8 +237,6 @@ void CreatureGodot::_notification(int p_what) {
 
 			Vector<Color> colors;
 			colors.push_back(color);
-			//Vector<int> indices = Geometry::triangulate_polygon(points);
-
 			VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(),indices,points,colors,uvs,texture.is_valid()?texture->get_rid():RID());
 
 		} break;
@@ -241,6 +254,18 @@ Color CreatureGodot::get_color() const{
 	return color;
 }
 
+void CreatureGodot::set_asset_filename(const String& filename_in)
+{
+    asset_filename = filename_in;
+    load_json(filename_in);
+    update_animation(0.1f);
+}
+
+String CreatureGodot::get_asset_filename() const
+{
+    return asset_filename;
+}
+
 void CreatureGodot::set_texture(const Ref<Texture>& p_texture){
 
 	texture=p_texture;
@@ -254,6 +279,7 @@ void CreatureGodot::set_texture(const Ref<Texture>& p_texture){
 	}*/
 	update();
 }
+
 Ref<Texture> CreatureGodot::get_texture() const{
 
 	return texture;
@@ -266,6 +292,12 @@ void CreatureGodot::_bind_methods() {
 
 	ObjectTypeDB::bind_method(_MD("set_texture","texture"),&CreatureGodot::set_texture);
 	ObjectTypeDB::bind_method(_MD("get_texture"),&CreatureGodot::get_texture);
+
+	ObjectTypeDB::bind_method(_MD("set_anim_speed","texture"),&CreatureGodot::set_anim_speed);
+	ObjectTypeDB::bind_method(_MD("get_anim_speed"),&CreatureGodot::get_anim_speed);
+    
+    ObjectTypeDB::bind_method(_MD("set_asset_filename","offset"),&CreatureGodot::set_asset_filename);
+	ObjectTypeDB::bind_method(_MD("get_asset_filename"),&CreatureGodot::get_asset_filename);
     
 	ObjectTypeDB::bind_method(_MD("set_offset","offset"),&CreatureGodot::set_offset);
 	ObjectTypeDB::bind_method(_MD("get_offset"),&CreatureGodot::get_offset);
@@ -275,6 +307,8 @@ void CreatureGodot::_bind_methods() {
     ObjectTypeDB::bind_method(_MD("blend_to_animation"),&CreatureGodot::blend_to_animation);
     ObjectTypeDB::bind_method(_MD("set_should_loop"),&CreatureGodot::set_should_loop);
 
+	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"),_SCS("set_anim_speed"),_SCS("get_anim_speed"));
+	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"),_SCS("set_asset_filename"),_SCS("get_asset_filename"));
 	ADD_PROPERTY( PropertyInfo(Variant::COLOR,"color"),_SCS("set_color"),_SCS("get_color"));
 	ADD_PROPERTY( PropertyInfo(Variant::VECTOR2,"offset"),_SCS("set_offset"),_SCS("get_offset"));
 	ADD_PROPERTY( PropertyInfo(Variant::OBJECT,"texture/texture",PROPERTY_HINT_RESOURCE_TYPE,"Texture"),_SCS("set_texture"),_SCS("get_texture"));
@@ -283,4 +317,5 @@ void CreatureGodot::_bind_methods() {
 CreatureGodot::CreatureGodot() {
 	color=Color(1,1,1);
 	rect_cache_dirty=true;
+    anim_speed = 2.0f;
 }
