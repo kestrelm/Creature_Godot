@@ -18,6 +18,7 @@ class CreatureGodot :  public Node2D {
 	Ref<Texture> texture;
     String asset_filename;
     float anim_speed;
+    bool mirror_y;
     
 	Vector2 offset;
 	mutable bool rect_cache_dirty;
@@ -55,6 +56,9 @@ public:
     
     void set_offset(const Vector2& p_offset);
 	Vector2 get_offset() const;
+    
+    void set_mirror_y(bool flag_in);
+    bool get_mirror_y() const;
 
 	//editor stuff
 

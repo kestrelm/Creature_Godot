@@ -2,9 +2,16 @@
 #include "globals.h"
 #include <string>
 #include <iostream>
+#include <fstream>
 
 static std::map<std::string, std::shared_ptr<CreatureModule::CreatureAnimation> > global_animations;
 static std::map<std::string, std::shared_ptr<CreatureModule::CreatureLoadDataPacket> > global_load_data_packets;
+
+static bool is_file_exist(const char *fileName)
+{
+    std::ifstream infile(fileName);
+    return infile.good();
+}
 
 static std::string GetAnimationToken(const std::string& filename_in, const std::string& name_in)
 {
@@ -14,6 +21,11 @@ static std::string GetAnimationToken(const std::string& filename_in, const std::
 static bool 
 LoadDataPacket(const std::string& filename_in)
 {
+    if(!is_file_exist(filename_in.c_str()))
+    {
+        return false;
+    }
+    
 	if (global_load_data_packets.count(filename_in) > 0)
 	{
 		// file already loaded, just return
@@ -234,8 +246,13 @@ void CreatureGodot::_notification(int p_what) {
              {
                  return;
              }
-
-			Vector<Color> colors;
+             
+             if(manager)
+             {
+                manager->SetMirrorY(mirror_y);
+             }
+            
+            Vector<Color> colors;
 			colors.push_back(color);
 			VS::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(),indices,points,colors,uvs,texture.is_valid()?texture->get_rid():RID());
 
@@ -285,6 +302,17 @@ Ref<Texture> CreatureGodot::get_texture() const{
 	return texture;
 }
 
+void CreatureGodot::set_mirror_y(bool flag_in)
+{
+    mirror_y = flag_in;
+    update();
+}
+
+bool CreatureGodot::get_mirror_y() const
+{
+    return mirror_y;
+}
+
 void CreatureGodot::_bind_methods() {
 
 	ObjectTypeDB::bind_method(_MD("set_color","color"),&CreatureGodot::set_color);
@@ -301,6 +329,9 @@ void CreatureGodot::_bind_methods() {
     
 	ObjectTypeDB::bind_method(_MD("set_offset","offset"),&CreatureGodot::set_offset);
 	ObjectTypeDB::bind_method(_MD("get_offset"),&CreatureGodot::get_offset);
+
+	ObjectTypeDB::bind_method(_MD("set_mirror_y","offset"),&CreatureGodot::set_mirror_y);
+	ObjectTypeDB::bind_method(_MD("get_mirror_y"),&CreatureGodot::get_mirror_y);
     
     ObjectTypeDB::bind_method(_MD("load_json"),&CreatureGodot::load_json);
     ObjectTypeDB::bind_method(_MD("update_animation"),&CreatureGodot::update_animation);
@@ -309,6 +340,7 @@ void CreatureGodot::_bind_methods() {
 
 	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"),_SCS("set_anim_speed"),_SCS("get_anim_speed"));
 	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"),_SCS("set_asset_filename"),_SCS("get_asset_filename"));
+	ADD_PROPERTY( PropertyInfo(Variant::BOOL,"mirror_y"),_SCS("set_mirror_y"),_SCS("get_mirror_y"));
 	ADD_PROPERTY( PropertyInfo(Variant::COLOR,"color"),_SCS("set_color"),_SCS("get_color"));
 	ADD_PROPERTY( PropertyInfo(Variant::VECTOR2,"offset"),_SCS("set_offset"),_SCS("get_offset"));
 	ADD_PROPERTY( PropertyInfo(Variant::OBJECT,"texture/texture",PROPERTY_HINT_RESOURCE_TYPE,"Texture"),_SCS("set_texture"),_SCS("get_texture"));
@@ -318,4 +350,5 @@ CreatureGodot::CreatureGodot() {
 	color=Color(1,1,1);
 	rect_cache_dirty=true;
     anim_speed = 2.0f;
+    mirror_y = false;
 }
