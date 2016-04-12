@@ -11,7 +11,7 @@ http://www.godotengine.org/
 Sample UtahRaptor Artwork: Emily Willoughby (http://emilywilloughby.com) 
 
 ##Video Tutorial
-A video tutorial of the using the plugin is here:
+A video tutorial about using the plugin is here:
 https://youtu.be/jkjWR21lAqY
 
 ##Compilation & Installation
