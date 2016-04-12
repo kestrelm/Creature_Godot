@@ -7,6 +7,9 @@ Creature Animation Tool Website: https://http://creature.kestrelmoon.com/
 Godot Engine Website:
 http://www.godotengine.org/
 
+
+Sample UtahRaptor Artwork: Emily Willoughby (http://emilywilloughby.com) 
+
 ##Compilation & Installation
 
 ###1. Grab the Godot Engine Source
