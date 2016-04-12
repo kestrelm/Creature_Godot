@@ -1,0 +1,7 @@
+# SCsub
+Import('env')
+
+env.Append(CPPDEFINES=['_USE_MATH_DEFINES'])
+env.Append(CPPPATH='#modules/creaturegodot/glm')
+env.Append(CPPPATH='#modules/creaturegodot/gason')
+env.add_source_files(env.modules_sources,"*.cpp") # just add all cpp files to the build
