@@ -345,6 +345,38 @@ void CreatureGodot::make_point_cache(const String& animation_name_in, int gap_st
     }
 }
 
+Vector2 
+CreatureGodot::get_bone_pos(const String& bone_name, float slide_factor)
+{
+    Vector2 ret_pt(0,0);
+    
+    if(manager)
+    {
+        auto  render_composition = manager->GetCreature()->GetRenderComposition();
+    	auto& bones_map = render_composition->getBonesMap();
+        
+        std::string real_name(bone_name.utf8());
+        if(bones_map.count(real_name) == 0)
+        {
+            return Vector2(0,0);
+        }        
+        
+        auto cur_bone = bones_map[real_name];
+        auto pt1 = cur_bone->getWorldStartPt();
+		auto pt2 = cur_bone->getWorldEndPt();
+        auto rel_vec = (pt2 - pt1) * slide_factor;     
+        auto set_vec = pt1 + rel_vec;
+        
+        // local coords
+        ret_pt = Vector2(set_vec.x, set_vec.y);
+        
+        // transform to world coords
+        get_transform().xform(ret_pt);
+    }
+    
+    return ret_pt;
+}
+
 void CreatureGodot::_bind_methods() {
 
 	ObjectTypeDB::bind_method(_MD("set_color","color"),&CreatureGodot::set_color);
@@ -376,6 +408,8 @@ void CreatureGodot::_bind_methods() {
     ObjectTypeDB::bind_method(_MD("set_anchor_points_active"),&CreatureGodot::set_anchor_points_active);
     
     ObjectTypeDB::bind_method(_MD("make_point_cache"),&CreatureGodot::make_point_cache);
+
+    ObjectTypeDB::bind_method(_MD("get_bone_pos"),&CreatureGodot::get_bone_pos);
 
 	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"),_SCS("set_anim_speed"),_SCS("get_anim_speed"));
 	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"),_SCS("set_asset_filename"),_SCS("get_asset_filename"));

@@ -66,6 +66,8 @@ public:
     void set_anchor_points_active(bool flag_in);
     
     void make_point_cache(const String& animation_name_in, int gap_step);
+    
+    Vector2 get_bone_pos(const String& bone_name, float slide_factor);
 
 	//editor stuff
 

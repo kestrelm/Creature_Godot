@@ -76,7 +76,7 @@ In **_process(delta)** itself, we play forward the animation by a delta timestep
 
 Play the game and you should see your character running!
 
-###Switching Animations & Other functions
+###Animation Functions
 **set_mirror_y(flag_in)** - Sets a boolean to flip the character along the Y axis
 
 **blend_to_animation(name, blend_factor)** - Switches to another animation smoothly based off the blend_factor. blend_factor is a value > 0 and <= 1.0. The higher the value, the faster the blending to the target animation.
@@ -85,12 +85,17 @@ Play the game and you should see your character running!
 
 **set_anim_speed(speed)** - A multiplier on how quickly the animation plays back.
 
-
+###Item Swapping
 **set_active_item_swap(region, id)** - Sets up a region for item swapping with the given region name and internal swap id. Read the Creature Tool Docs to see how to set this up.
 
 **remove_active_item_swap(region)** - Removes the currently swapped out region/item.
 
+###Anchor Points
 **set_anchor_points_active(flag)** - Activation of Anchor points setup for the character
 
+###Speeding up playback with Point Caching
 **make_point_cache(animation_name, gap_step)** - Creates a point cache for the animation for super fast playback. gap_step determines the accuracy of the point cache, the higher the step the less accurate but faster the cache generation.
+
+###Grabbing the position along a bone for attachments
+**get_bone_pos( bone_name, slide_factor)** - Returns a Vector2 that denotes the position along the 2 end points of a given bone in world space. The slide_factor determins how far along the bone you are. So if the value is 0.5, you are retrieving the mid point of the bone. A value of 0 gives you the starting point, a value of 1 gives you the end point.
 
