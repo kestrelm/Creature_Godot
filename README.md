@@ -86,3 +86,11 @@ Play the game and you should see your character running!
 **set_anim_speed(speed)** - A multiplier on how quickly the animation plays back.
 
 
+**set_active_item_swap(region, id)** - Sets up a region for item swapping with the given region name and internal swap id. Read the Creature Tool Docs to see how to set this up.
+
+**remove_active_item_swap(region)** - Removes the currently swapped out region/item.
+
+**set_anchor_points_active(flag)** - Activation of Anchor points setup for the character
+
+**make_point_cache(animation_name, gap_step)** - Creates a point cache for the animation for super fast playback. gap_step determines the accuracy of the point cache, the higher the step the less accurate but faster the cache generation.
+
