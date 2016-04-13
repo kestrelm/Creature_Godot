@@ -59,6 +59,13 @@ public:
     
     void set_mirror_y(bool flag_in);
     bool get_mirror_y() const;
+    
+    void set_active_item_swap(const String& region_name, int swap_idx);
+	void remove_active_item_swap(const String& region_name);
+    
+    void set_anchor_points_active(bool flag_in);
+    
+    void make_point_cache(const String& animation_name_in, int gap_step);
 
 	//editor stuff
 

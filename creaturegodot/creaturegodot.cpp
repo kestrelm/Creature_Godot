@@ -313,6 +313,38 @@ bool CreatureGodot::get_mirror_y() const
     return mirror_y;
 }
 
+void CreatureGodot::set_active_item_swap(const String& region_name, int swap_idx)
+{
+    if(manager)
+    {
+        manager->GetCreature()->SetActiveItemSwap(std::string(region_name.utf8()), swap_idx);
+    }   
+}
+
+void CreatureGodot::remove_active_item_swap(const String& region_name)
+{
+    if(manager)
+    {
+        manager->GetCreature()->RemoveActiveItemSwap(std::string(region_name.utf8()));
+    }       
+}
+
+void CreatureGodot::set_anchor_points_active(bool flag_in)
+{
+    if(manager)
+    {
+        manager->GetCreature()->SetAnchorPointsActive(flag_in);
+    }
+}
+
+void CreatureGodot::make_point_cache(const String& animation_name_in, int gap_step)
+{
+    if(manager)
+    {
+        manager->MakePointCache(std::string(animation_name_in.utf8()), gap_step);
+    }
+}
+
 void CreatureGodot::_bind_methods() {
 
 	ObjectTypeDB::bind_method(_MD("set_color","color"),&CreatureGodot::set_color);
@@ -337,6 +369,13 @@ void CreatureGodot::_bind_methods() {
     ObjectTypeDB::bind_method(_MD("update_animation"),&CreatureGodot::update_animation);
     ObjectTypeDB::bind_method(_MD("blend_to_animation"),&CreatureGodot::blend_to_animation);
     ObjectTypeDB::bind_method(_MD("set_should_loop"),&CreatureGodot::set_should_loop);
+
+    ObjectTypeDB::bind_method(_MD("set_active_item_swap"),&CreatureGodot::set_active_item_swap);
+    ObjectTypeDB::bind_method(_MD("remove_active_item_swap"),&CreatureGodot::remove_active_item_swap);
+    
+    ObjectTypeDB::bind_method(_MD("set_anchor_points_active"),&CreatureGodot::set_anchor_points_active);
+    
+    ObjectTypeDB::bind_method(_MD("make_point_cache"),&CreatureGodot::make_point_cache);
 
 	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"),_SCS("set_anim_speed"),_SCS("get_anim_speed"));
 	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"),_SCS("set_asset_filename"),_SCS("get_asset_filename"));
