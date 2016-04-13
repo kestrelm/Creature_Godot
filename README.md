@@ -10,9 +10,20 @@ http://www.godotengine.org/
 
 Sample UtahRaptor Artwork: Emily Willoughby (http://emilywilloughby.com) 
 
-##Video Tutorial
-A video tutorial about using the plugin is here:
+##Video Tutorials
+
+![Alt text](https://github.com/kestrelm/Creature_Godot/blob/master/splash.png)
+
+###Getting Started
+An introductory video tutorial about using the plugin is here:
 https://youtu.be/jkjWR21lAqY
+
+###Animation Player / Animation Properties
+Watch this tutorial to learn how to manipulate/playback a Creature Godot object with Godot's AnimationPlayer node:
+https://youtu.be/afSObHcj9O8
+
+
+
 
 ##Compilation & Installation
 
