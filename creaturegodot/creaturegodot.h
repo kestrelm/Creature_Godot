@@ -19,6 +19,8 @@ class CreatureGodot :  public Node2D {
     String asset_filename;
     float anim_speed;
     bool mirror_y;
+    float anim_frame;
+    String anim_name;
     
 	Vector2 offset;
 	mutable bool rect_cache_dirty;
@@ -38,7 +40,7 @@ public:
     
     void update_animation(float delta);
     
-    void blend_to_animation(String animation_name, float blend_delta);
+    bool blend_to_animation(String animation_name, float blend_delta);
     
     void set_should_loop(bool flag_in);
     
@@ -68,6 +70,12 @@ public:
     void make_point_cache(const String& animation_name_in, int gap_step);
     
     Vector2 get_bone_pos(const String& bone_name, float slide_factor);
+    
+    void set_anim_frame(float frame_in);
+    float get_anim_frame() const;
+    
+    void set_anim_name(const String& name_in);
+    String get_anim_name() const;
 
 	//editor stuff
 

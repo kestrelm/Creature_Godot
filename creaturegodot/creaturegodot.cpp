@@ -120,12 +120,21 @@ CreatureGodot::load_json(const String& filename_in)
 	}
     
     manager->SetActiveAnimationName(first_animation_name);
+    anim_name = String(first_animation_name.c_str());
 }
 
-void CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
+bool CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
 {
     auto real_anim_name = std::string(animation_name.utf8());
+    if(manager->GetAllAnimations().count(real_anim_name) == 0)
+    {
+        std::cout<<"CreatureGodot::blend_to_animation() - ERROR! Animation name: "<<real_anim_name<<" does not exist."<<std::endl;
+        return false;
+    }
+    
     manager->AutoBlendTo(real_anim_name, blend_delta);
+    
+    return true;
 }
 
 void CreatureGodot::set_should_loop(bool flag_in)
@@ -142,6 +151,39 @@ CreatureGodot::set_anim_speed(float value_in)
 float 
 CreatureGodot::get_anim_speed() const{
     return anim_speed;   
+}
+
+void CreatureGodot::set_anim_frame(float frame_in)
+{
+    if(manager)
+    {
+        anim_frame = frame_in;
+        manager->setRunTime(frame_in);
+        update_animation(0.0f);
+    }
+}
+
+float CreatureGodot::get_anim_frame() const
+{
+    return anim_frame;   
+}
+    
+void CreatureGodot::set_anim_name(const String& name_in)
+{
+    if(manager)
+    {
+        auto retval = blend_to_animation(name_in, 1.0f);
+        if(retval)
+        {
+            update_animation(0.0f);
+            anim_name = name_in;            
+        }
+    }
+}
+
+String CreatureGodot::get_anim_name() const
+{
+    return anim_name;
 }
 
 void CreatureGodot::update_animation(float delta)
@@ -396,6 +438,12 @@ void CreatureGodot::_bind_methods() {
 
 	ObjectTypeDB::bind_method(_MD("set_mirror_y","offset"),&CreatureGodot::set_mirror_y);
 	ObjectTypeDB::bind_method(_MD("get_mirror_y"),&CreatureGodot::get_mirror_y);
+
+	ObjectTypeDB::bind_method(_MD("set_anim_frame","offset"),&CreatureGodot::set_anim_frame);
+	ObjectTypeDB::bind_method(_MD("get_anim_frame"),&CreatureGodot::get_anim_frame);
+
+	ObjectTypeDB::bind_method(_MD("set_anim_name","offset"),&CreatureGodot::set_anim_name);
+	ObjectTypeDB::bind_method(_MD("get_anim_name"),&CreatureGodot::get_anim_name);
     
     ObjectTypeDB::bind_method(_MD("load_json"),&CreatureGodot::load_json);
     ObjectTypeDB::bind_method(_MD("update_animation"),&CreatureGodot::update_animation);
@@ -411,6 +459,8 @@ void CreatureGodot::_bind_methods() {
 
     ObjectTypeDB::bind_method(_MD("get_bone_pos"),&CreatureGodot::get_bone_pos);
 
+	ADD_PROPERTY( PropertyInfo(Variant::STRING,"anim_name"),_SCS("set_anim_name"),_SCS("get_anim_name"));
+	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_frame"),_SCS("set_anim_frame"),_SCS("get_anim_frame"));
 	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"),_SCS("set_anim_speed"),_SCS("get_anim_speed"));
 	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"),_SCS("set_asset_filename"),_SCS("get_asset_filename"));
 	ADD_PROPERTY( PropertyInfo(Variant::BOOL,"mirror_y"),_SCS("set_mirror_y"),_SCS("get_mirror_y"));
@@ -424,4 +474,5 @@ CreatureGodot::CreatureGodot() {
 	rect_cache_dirty=true;
     anim_speed = 2.0f;
     mirror_y = false;
+    anim_frame = 0.0f;
 }
