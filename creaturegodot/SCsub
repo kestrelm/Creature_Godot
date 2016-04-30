@@ -2,6 +2,11 @@
 Import('env')
 
 env.Append(CPPDEFINES=['_USE_MATH_DEFINES'])
+env.Append(CPPPATH='#modules/creaturegodot') # Added to find headers
 env.Append(CPPPATH='#modules/creaturegodot/glm')
 env.Append(CPPPATH='#modules/creaturegodot/gason')
+
+if env['p'] != 'windows' and env['p'] != 'osx':
+    env.Append(CXXFLAGS=['-std=c++11'])
+    
 env.add_source_files(env.modules_sources,"*.cpp") # just add all cpp files to the build
