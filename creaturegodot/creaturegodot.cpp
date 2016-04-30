@@ -90,7 +90,7 @@ static bool add_loaded_animation(CreatureModule::CreatureManager * creature_mana
 	return false;
 }
 
-void 
+bool 
 CreatureGodot::load_json(const String& filename_in)
 {
     auto global_path = Globals::get_singleton()->globalize_path(filename_in);
@@ -101,7 +101,7 @@ CreatureGodot::load_json(const String& filename_in)
     if(!can_load)
     {
         std::cout<<"CreatureGodot::load_json() - ERRROR! Could not load file: "<<load_filename<<std::endl;
-        return;
+        return false;
     }
     std::cout<<"CreatureGodot::load_json() - Finished loading file: "<<load_filename<<std::endl;
 
@@ -121,6 +121,8 @@ CreatureGodot::load_json(const String& filename_in)
     
     manager->SetActiveAnimationName(first_animation_name);
     anim_name = String(first_animation_name.c_str());
+    
+    return true;
 }
 
 bool CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
@@ -315,9 +317,13 @@ Color CreatureGodot::get_color() const{
 
 void CreatureGodot::set_asset_filename(const String& filename_in)
 {
-    asset_filename = filename_in;
-    load_json(filename_in);
-    update_animation(0.1f);
+    auto retval = load_json(filename_in);
+    
+    if(retval)
+    {
+        asset_filename = filename_in;
+        update_animation(0.1f);        
+    }
 }
 
 String CreatureGodot::get_asset_filename() const

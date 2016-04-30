@@ -36,7 +36,7 @@ protected:
 	static void _bind_methods();
 public:
 
-    void load_json(const String& filename_in);
+    bool load_json(const String& filename_in);
     
     void update_animation(float delta);
     
