@@ -120,6 +120,7 @@ CreatureGodot::load_json(const String& filename_in)
 	}
     
     manager->SetActiveAnimationName(first_animation_name);
+    manager->SetAutoBlending(true);
     anim_name = String(first_animation_name.c_str());
     
     return true;
