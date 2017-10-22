@@ -57,9 +57,9 @@ Create a new node in Godot Engine, and type/search for **creature**:
 You should see **CreatureGodot** show up which means the plugin is now active in Godot Engine. Add **CreatureGodot** into your scene.
 
 ### 2. Configure CreatureGodot
-First, set the **Asset Filename** property. This points to the exported Creature JSON filename living within your project directory. You can also provide a **zipped version** ( has to end with a .zip extension ) of the file to save disk space.
+First, set the **Asset Filename** property. This points to the exported Creature JSON filename living within your project directory. 
 
-The **Asset Filename** has to be in the format: **res://myfilename.json** or **res://myfilename.zip**.
+The **Asset Filename** has to be in the format: **res://myfilename.json**.
 
 If all goes well, you should see your character load up:
 
