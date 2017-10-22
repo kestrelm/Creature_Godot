@@ -10,6 +10,7 @@ env_mymodule.Append(CPPPATH='#modules/creaturegodot/gason')
 if env['p'] != 'windows':
 	#env_mymodule.Append(CXXFLAGS=['-O2', '-std=c++11'])
 	env_mymodule.add_source_files(env.modules_sources,"*.cpp") # just add all cpp files to the build
+	env_mymodule.add_source_files(env.modules_sources,"./gason/*.cpp") # just add all cpp files to the build
 else:
 	env_mymodule.add_source_files(env.modules_sources,"*.cpp")
     

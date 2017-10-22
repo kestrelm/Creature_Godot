@@ -33,8 +33,7 @@
  * RUNTIMES.
  *****************************************************************************/
 
-#ifndef __CocosEngineTest__CreatureModule__
-#define __CocosEngineTest__CreatureModule__
+#pragma once
 
 #include <iostream>
 #include <functional>
@@ -396,5 +395,3 @@ namespace CreatureModule {
         
     };
 };
-
-#endif /* defined(__CocosEngineTest__CreatureModule__) */
