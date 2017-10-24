@@ -1,5 +1,6 @@
 #include "CreatureMetaData.h"
 #include "gason.h"
+#include "MeshBone.h"
 #include <memory>
 #include <algorithm>
 #include <iostream>
@@ -158,3 +159,139 @@ CreatureModule::CreatureMetaData::~CreatureMetaData()
 {
 
 }
+
+bool CreatureModule::CreatureMetaData::buildSkinSwapIndices(
+    const std::string& swap_name,
+    meshRenderBoneComposition * bone_composition,
+    std::function<void(int, int)> indices_callback,
+    int& total_size
+)
+{
+    total_size = 0;
+    if(skin_swaps.count(swap_name) == 0)
+    {
+        return false;
+    }
+
+    const auto& swap_set = skin_swaps[swap_name];
+    const auto& regions = bone_composition->getRegions();
+    int offset = 0;
+	for (auto cur_region : regions)
+	{
+		if (swap_set.count(cur_region->getName()) > 0)
+		{
+            for(auto idx = 0; idx < cur_region->getNumIndices(); idx++)
+            {
+                indices_callback(offset + idx, cur_region->getIndices()[idx]);
+            }
+
+            offset += cur_region->getNumIndices();
+		}        
+    }
+
+    total_size = offset;
+    return true;
+}
+
+void CreatureModule::CreatureMetaData::updateIndicesAndPoints(
+    glm::uint32 * src_indices,
+    std::function<void(int, int)> dst_indices_callback,
+    std::function<void(int, float, float)> dst_pts_callback,
+    int num_indices,
+    int num_pts,
+    const std::string& anim_name,
+    int time_in
+)
+{
+    auto copyIndices = [&](glm::uint32 * ref_indices, int offset, int write_indices) {
+        for(int i = 0; i < write_indices; i++)
+        {
+            dst_indices_callback(i + offset, ref_indices[i]);
+        }
+    };
+
+    bool has_data = false;
+    auto cur_order = sampleOrder(anim_name, time_in);
+    if(cur_order)
+    {
+        has_data = (cur_order->size() > 0);
+    }
+
+    if (has_data)
+    {
+        // Copy new ordering to destination
+        int write_offset = 0;
+        int total_num_write_indices = 0;
+        for (auto region_id : (*cur_order))
+        {
+            if (mesh_map.count(region_id) == 0)
+            {
+                // region not found, just copy and return
+                copyIndices(src_indices, 0, num_indices);
+                return;
+            }
+
+            // Write indices
+            auto& mesh_data = mesh_map[region_id];
+            auto num_write_indices = mesh_data.second - mesh_data.first + 1;
+            auto region_src_ptr = src_indices + mesh_data.first;
+            total_num_write_indices += num_write_indices;
+
+            if (total_num_write_indices > num_indices)
+            {
+                // overwriting boundaries of array, regions do not match so copy and return
+                copyIndices(src_indices, 0, num_indices);
+                return;
+            }
+
+            copyIndices(region_src_ptr, write_offset, num_write_indices);
+            write_offset += num_write_indices;
+        }
+    }
+    else {
+        // Nothing changded, just copy from source
+        copyIndices(src_indices, 0, num_indices);
+    }
+}
+
+const std::vector<int> * 
+CreatureModule::CreatureMetaData::sampleOrder(const std::string& anim_name, int time_in) const
+{
+    if (anim_order_map.count(anim_name) > 0)
+    {
+        const auto& order_table = anim_order_map.at(anim_name);
+        if (order_table.empty())
+        {
+            return nullptr;
+        }
+
+        int sample_time = 0;
+        for(const auto& order_data : order_table)
+        {
+            auto cur_time = order_data.first;
+            if (time_in >= cur_time)
+            {
+                sample_time = cur_time;
+            }
+        }
+
+        return &order_table.at(sample_time);
+    }
+
+    return nullptr;
+}
+
+bool 
+CreatureModule::CreatureMetaData::addSkinSwap(
+    const std::string& swap_name, 
+    const std::unordered_set<std::string>& set_in)
+{
+    if (skin_swaps.count(swap_name))
+    {
+        return false;
+    }
+
+    skin_swaps[swap_name] = set_in;
+    return true;    
+}
+
