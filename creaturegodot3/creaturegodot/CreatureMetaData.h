@@ -29,9 +29,7 @@ namespace CreatureModule
         void updateIndicesAndPoints(
             glm::uint32 * src_indices,
             std::function<void(int, int)> dst_indices_callback,
-            std::function<void(int, float, float)> dst_pts_callback,
             int num_indices,
-            int num_pts,
             const std::string& anim_name,
             int time_in
         );

@@ -5,6 +5,7 @@
 #include "reference.h"
 #include "scene/2d/node_2d.h"
 #include "CreatureModule.h"
+#include "CreatureMetaData.h"
 #include <memory>
 
 class CreatureGodot :  public Node2D {
@@ -13,20 +14,27 @@ class CreatureGodot :  public Node2D {
 
     Vector<Vector2> points;
 	Vector<Vector2> uvs;
-    Vector<int> indices;
+    Vector<int> indices, meta_indices, real_meta_indices;
     Color color;
     Vector<Color> fill_colors;
 	Ref<Texture> texture;
-    String asset_filename;
+    String asset_filename, metadata_filename;
     float anim_speed;
     bool mirror_y;
     float anim_frame;
     String anim_name;
+    String skinswap_name;
+
+    const int INDICES_MODE_NONE = 0;
+    const int INDICES_MODE_ORDER = 1;
+    const int INDICES_MODE_SKINSWAP = 2;
+    int indices_process_mode;
     
 	Vector2 offset;
 	mutable bool rect_cache_dirty;
 	mutable Rect2 item_rect;
-    std::shared_ptr<CreatureModule::CreatureManager> manager;
+    std::unique_ptr<CreatureModule::CreatureManager> manager;
+    std::unique_ptr<CreatureModule::CreatureMetaData> metadata;
 
 	void _set_texture_rotationd(float p_rot);
 	float _get_texture_rotationd() const;
@@ -34,20 +42,32 @@ class CreatureGodot :  public Node2D {
 protected:
 
 	void _notification(int p_what);
-	static void _bind_methods();
-public:
+    
+    static void _bind_methods();
 
+    void processSkinSwap();
+
+    void processLayerOrder(int time_in);
+    
+public:
+    CreatureGodot();
+    
     bool load_json(const String& filename_in);
     
     void update_animation(float delta);
     
     bool blend_to_animation(String animation_name, float blend_delta);
+
+    void setSkinSwapName(String name_in);
     
     void set_should_loop(bool flag_in);
     
     void set_asset_filename(const String& filename_in);
     String get_asset_filename() const;
-    
+
+    void set_metadata_filename(const String& filename_in);
+    String get_metadata_filename() const;
+
     void set_anim_speed(float value_in);
     float get_anim_speed() const;
 
@@ -85,9 +105,6 @@ public:
 	virtual bool edit_has_pivot() const;
 
 	virtual Rect2 get_item_rect() const;
-
-
-    CreatureGodot();
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 static std::map<std::string, std::shared_ptr<CreatureModule::CreatureAnimation> > global_animations;
 static std::map<std::string, std::shared_ptr<CreatureModule::CreatureLoadDataPacket> > global_load_data_packets;
@@ -78,6 +79,16 @@ static bool add_loaded_animation(CreatureModule::CreatureManager * creature_mana
 	return false;
 }
 
+// CreatureGodot
+CreatureGodot::CreatureGodot() {
+	color=Color(1,1,1);
+	rect_cache_dirty=true;
+    anim_speed = 2.0f;
+    mirror_y = false;
+    anim_frame = 0.0f;
+    indices_process_mode = INDICES_MODE_NONE;    
+}
+
 bool 
 CreatureGodot::load_json(const String& filename_in)
 {
@@ -95,7 +106,7 @@ CreatureGodot::load_json(const String& filename_in)
 
     auto json_data = global_load_data_packets[load_filename];
     auto cur_creature = std::shared_ptr<CreatureModule::Creature>(new CreatureModule::Creature(*json_data));    
-    manager = std::shared_ptr<CreatureModule::CreatureManager> (new CreatureModule::CreatureManager(cur_creature));
+    manager = std::unique_ptr<CreatureModule::CreatureManager> (new CreatureModule::CreatureManager(cur_creature));
     
     auto all_animation_names = manager->GetCreature()->GetAnimationNames();
     auto first_animation_name = all_animation_names[0];
@@ -126,6 +137,11 @@ bool CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
     manager->AutoBlendTo(real_anim_name, blend_delta);
     
     return true;
+}
+
+void CreatureGodot::setSkinSwapName(String name_in)
+{
+    skinswap_name = name_in;
 }
 
 void CreatureGodot::set_should_loop(bool flag_in)
@@ -189,6 +205,7 @@ void CreatureGodot::update_animation(float delta)
             points.resize(manager->GetCreature()->GetTotalNumPoints());
             uvs.resize(points.size());
             indices.resize(manager->GetCreature()->GetTotalNumIndices());
+            meta_indices.resize(manager->GetCreature()->GetTotalNumIndices());
         }
         
         // fill in rendering data
@@ -324,6 +341,24 @@ String CreatureGodot::get_asset_filename() const
     return asset_filename;
 }
 
+void CreatureGodot::set_metadata_filename(const String& filename_in)
+{
+    metadata_filename = filename_in;
+    std::ifstream read_file;
+    read_file.open(filename_in.c_str());
+    std::stringstream str_stream;
+    str_stream << read_file.rdbuf();
+    read_file.close();
+
+    metadata = std::unique_ptr<CreatureModule::CreatureMetaData>(
+        new CreatureModule::CreatureMetaData(str_stream.str()));
+}
+
+String CreatureGodot::get_metadata_filename() const
+{
+    return metadata_filename;
+}
+
 void CreatureGodot::set_texture(const Ref<Texture>& p_texture){
 
 	texture=p_texture;
@@ -383,6 +418,58 @@ void CreatureGodot::make_point_cache(const String& animation_name_in, int gap_st
     if(manager)
     {
         manager->MakePointCache(std::string(animation_name_in.utf8()), gap_step);
+    }
+}
+
+void CreatureGodot::processSkinSwap()
+{
+    int real_indices_size = 0;
+    auto render_composition = manager->GetCreature()->GetRenderComposition();    
+    auto retval = metadata->buildSkinSwapIndices(
+        std::string(skinswap_name.utf8()),
+        render_composition,
+        [&](int idx, int value)
+        {
+            meta_indices[idx] = value;
+        },
+        real_indices_size
+    );
+
+    if(retval)
+    {
+        if(real_meta_indices.size() != real_indices_size)
+        {
+            real_meta_indices.resize(real_indices_size);            
+        }
+
+        for(int i = 0; i < real_indices_size; i++)
+        {
+            real_meta_indices[i] = meta_indices[i];
+        }
+    }
+}
+
+void CreatureGodot::processLayerOrder(int time_in)
+{
+    metadata->updateIndicesAndPoints(
+        manager->GetCreature()->GetGlobalIndices(),
+        [&](int idx, int value)
+        {
+            meta_indices[idx] = value;            
+        },
+        manager->GetCreature()->GetTotalNumIndices(),
+        manager->GetActiveAnimationName(),
+        time_in        
+    );
+
+    if(real_meta_indices.size() != meta_indices.size())
+    {
+        real_meta_indices.resize(meta_indices.size());            
+    }
+
+    for(int i = 0; i < real_meta_indices.size(); i++)
+    {
+        real_meta_indices[i] = meta_indices[i];
     }
 }
 
@@ -448,7 +535,8 @@ void CreatureGodot::_bind_methods() {
     ClassDB::bind_method(D_METHOD("update_animation"),&CreatureGodot::update_animation);
     ClassDB::bind_method(D_METHOD("blend_to_animation"),&CreatureGodot::blend_to_animation);
     ClassDB::bind_method(D_METHOD("set_should_loop"),&CreatureGodot::set_should_loop);
-
+    ClassDB::bind_method(D_METHOD("setSkinSwapName"),&CreatureGodot::setSkinSwapName);
+    
     ClassDB::bind_method(D_METHOD("set_active_item_swap"),&CreatureGodot::set_active_item_swap);
     ClassDB::bind_method(D_METHOD("remove_active_item_swap"),&CreatureGodot::remove_active_item_swap);
     
@@ -462,16 +550,9 @@ void CreatureGodot::_bind_methods() {
 	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_frame"), "set_anim_frame", "get_anim_frame");
 	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"), "set_anim_speed", "get_anim_speed");
 	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"), "set_asset_filename", "get_asset_filename");
+	ADD_PROPERTY( PropertyInfo(Variant::STRING,"metadata_filename"), "set_metadata_filename", "get_metadata_filename");
 	ADD_PROPERTY( PropertyInfo(Variant::BOOL,"mirror_y"), "set_mirror_y", "get_mirror_y");
 	ADD_PROPERTY( PropertyInfo(Variant::COLOR,"color"), "set_color", "get_color");
 	ADD_PROPERTY( PropertyInfo(Variant::VECTOR2,"offset"), "set_offset", "get_offset");
 	ADD_PROPERTY( PropertyInfo(Variant::OBJECT,"texture/texture",PROPERTY_HINT_RESOURCE_TYPE,"Texture"), "set_texture", "get_texture");
-}
-
-CreatureGodot::CreatureGodot() {
-	color=Color(1,1,1);
-	rect_cache_dirty=true;
-    anim_speed = 2.0f;
-    mirror_y = false;
-    anim_frame = 0.0f;
 }
