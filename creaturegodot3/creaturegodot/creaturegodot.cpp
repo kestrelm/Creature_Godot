@@ -16,7 +16,7 @@ static bool is_file_exist(const char *fileName)
 
 static std::string GetAnimationToken(const std::string& filename_in, const std::string& name_in)
 {
-	return filename_in + std::string("_") + name_in;
+    return filename_in + std::string("_") + name_in;
 }
 
 static bool 
@@ -27,62 +27,62 @@ LoadDataPacket(const std::string& filename_in)
         return false;
     }
     
-	if (global_load_data_packets.count(filename_in) > 0)
-	{
-		// file already loaded, just return
-		return true;
-	}
-	//////////////////////////////////////////////////////////////////////////
-	//Changed!
-	//////////////////////////////////////////////////////////////////////////
-		std::shared_ptr<CreatureModule::CreatureLoadDataPacket> new_packet =
-			std::make_shared<CreatureModule::CreatureLoadDataPacket>();
+    if (global_load_data_packets.count(filename_in) > 0)
+    {
+        // file already loaded, just return
+        return true;
+    }
+    //////////////////////////////////////////////////////////////////////////
+    //Changed!
+    //////////////////////////////////////////////////////////////////////////
+    std::shared_ptr<CreatureModule::CreatureLoadDataPacket> new_packet =
+        std::make_shared<CreatureModule::CreatureLoadDataPacket>();
 
-		// load regular JSON
-		CreatureModule::LoadCreatureJSONData(filename_in, *new_packet);
-		global_load_data_packets[filename_in] = new_packet;
+    // load regular JSON
+    CreatureModule::LoadCreatureJSONData(filename_in, *new_packet);
+    global_load_data_packets[filename_in] = new_packet;
 
-		return true;
+    return true;
 }
 
 static void load_animation(const std::string& filename_in, const std::string& name_in)
 {
-	auto cur_token = GetAnimationToken(filename_in, name_in);
-	if (global_animations.count(cur_token) > 0)
-	{
-		// animation already exists, just return
-		return;
-	}
+    auto cur_token = GetAnimationToken(filename_in, name_in);
+    if (global_animations.count(cur_token) > 0)
+    {
+        // animation already exists, just return
+        return;
+    }
 
-	auto load_data = global_load_data_packets[filename_in];
+    auto load_data = global_load_data_packets[filename_in];
 
-	std::shared_ptr<CreatureModule::CreatureAnimation> new_animation =
-		std::make_shared<CreatureModule::CreatureAnimation>(*load_data, name_in);
+    std::shared_ptr<CreatureModule::CreatureAnimation> new_animation =
+        std::make_shared<CreatureModule::CreatureAnimation>(*load_data, name_in);
 
-	global_animations[cur_token] = new_animation;
+    global_animations[cur_token] = new_animation;
 }
 
 static bool add_loaded_animation(CreatureModule::CreatureManager * creature_manager, const std::string& filename_in, const std::string& name_in)
 {
-	auto cur_token = GetAnimationToken(filename_in, name_in);
-	if (global_animations.count(cur_token) > 0)
-	{
-		creature_manager->AddAnimation(global_animations[cur_token]);
-		creature_manager->SetIsPlaying(true);
-		creature_manager->SetShouldLoop(true);
-		return true;
-	}
-	else {
-		std::cout << "ERROR! ACreatureActor::AddLoadedAnimation() Animation with filename: " << filename_in << " and name: " << name_in << " not loaded!" << std::endl;
-	}
+    auto cur_token = GetAnimationToken(filename_in, name_in);
+    if (global_animations.count(cur_token) > 0)
+    {
+        creature_manager->AddAnimation(global_animations[cur_token]);
+        creature_manager->SetIsPlaying(true);
+        creature_manager->SetShouldLoop(true);
+        return true;
+    }
+    else {
+        std::cout << "ERROR! ACreatureActor::AddLoadedAnimation() Animation with filename: " << filename_in << " and name: " << name_in << " not loaded!" << std::endl;
+    }
 
-	return false;
+    return false;
 }
 
 // CreatureGodot
 CreatureGodot::CreatureGodot() {
-	color=Color(1,1,1);
-	rect_cache_dirty=true;
+    color=Color(1,1,1);
+    rect_cache_dirty=true;
     anim_speed = 2.0f;
     mirror_y = false;
     anim_frame = 0.0f;
@@ -90,7 +90,7 @@ CreatureGodot::CreatureGodot() {
 }
 
 bool 
-CreatureGodot::load_json(const String& filename_in)
+CreatureGodot::load_json(const String filename_in)
 {
     auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
     std::cout<<"CreatureGodot::load_json() - Loading file: "<<global_path.utf8()<<std::endl;
@@ -111,12 +111,12 @@ CreatureGodot::load_json(const String& filename_in)
     auto all_animation_names = manager->GetCreature()->GetAnimationNames();
     auto first_animation_name = all_animation_names[0];
     for (auto& cur_name : all_animation_names)
-	{
+    {
         std::cout<<"CreatureGodot::load_json() - Trying to load animation: "<<cur_name<<std::endl;
-		load_animation(load_filename, cur_name);
-		add_loaded_animation(manager.get(), load_filename, cur_name);
+        load_animation(load_filename, cur_name);
+        add_loaded_animation(manager.get(), load_filename, cur_name);
         std::cout<<"CreatureGodot::load_json() - Loaded animation: "<<cur_name<<std::endl;
-	}
+    }
     
     manager->SetActiveAnimationName(first_animation_name);
     manager->SetAutoBlending(true);
@@ -139,7 +139,7 @@ bool CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
     return true;
 }
 
-void CreatureGodot::setSkinSwapName(String name_in)
+void CreatureGodot::set_skinswap_name(String name_in)
 {
     skinswap_name = name_in;
 }
@@ -175,7 +175,7 @@ float CreatureGodot::get_anim_frame() const
     return anim_frame;   
 }
     
-void CreatureGodot::set_anim_name(const String& name_in)
+void CreatureGodot::set_anim_name(String name_in)
 {
     if(manager)
     {
@@ -240,58 +240,58 @@ void CreatureGodot::update_animation(float delta)
 Rect2 CreatureGodot::get_item_rect() const {
 
 
-	if (rect_cache_dirty){
-		int l =points.size();
-		item_rect=Rect2();
-		for(int i=0;i<l;i++) {
-			Vector2 pos = points[i];
-			if (i==0)
-				item_rect.position = pos;
-			else
-				item_rect.expand_to(pos);
-		}
-		item_rect=item_rect.grow(20);
-		rect_cache_dirty=false;
-	}
+    if (rect_cache_dirty){
+        int l =points.size();
+        item_rect=Rect2();
+        for(int i=0;i<l;i++) {
+            Vector2 pos = points[i];
+            if (i==0)
+                item_rect.position = pos;
+            else
+                item_rect.expand_to(pos);
+        }
+        item_rect=item_rect.grow(20);
+        rect_cache_dirty=false;
+    }
 
 
-	return item_rect;
+    return item_rect;
 
 
 }
 
 void CreatureGodot::set_offset(const Vector2& p_offset) {
 
-	offset=p_offset;
-	rect_cache_dirty=true;
-	update();
+    offset=p_offset;
+    rect_cache_dirty=true;
+    update();
 }
 
 Vector2 CreatureGodot::get_offset() const {
 
-	return offset;
+    return offset;
 }
 
 void CreatureGodot::edit_set_pivot(const Point2& p_pivot) {
 
-	set_offset(p_pivot);
+    set_offset(p_pivot);
 }
 
 Point2 CreatureGodot::edit_get_pivot() const {
 
-	return get_offset();
+    return get_offset();
 }
 bool CreatureGodot::edit_has_pivot() const {
 
-	return true;
+    return true;
 }
 
 void CreatureGodot::_notification(int p_what) {
 
 
-	switch(p_what) {
+    switch(p_what) {
 
-		case NOTIFICATION_DRAW: {
+        case NOTIFICATION_DRAW: {
              if((points.size() < 3) || (uvs.size() < 3))
              {
                  return;
@@ -302,30 +302,30 @@ void CreatureGodot::_notification(int p_what) {
                 manager->SetMirrorY(mirror_y);
              }
             
-			VS::get_singleton()->canvas_item_add_triangle_array(
+            VS::get_singleton()->canvas_item_add_triangle_array(
                 get_canvas_item(),
                 indices,points,
                 fill_colors,
                 uvs,texture.is_valid()?texture->get_rid():RID());
 
-		} break;
-	}
+        } break;
+    }
 }
 
-void CreatureGodot::set_color(const Color& p_color){
+void CreatureGodot::set_color(Color p_color){
 
     color=p_color;
     fill_colors.clear();
     fill_colors.push_back(color);
-	update();
+    update();
 }
 
 Color CreatureGodot::get_color() const{
 
-	return color;
+    return color;
 }
 
-void CreatureGodot::set_asset_filename(const String& filename_in)
+void CreatureGodot::set_asset_filename(String filename_in)
 {
     auto retval = load_json(filename_in);
     
@@ -341,7 +341,7 @@ String CreatureGodot::get_asset_filename() const
     return asset_filename;
 }
 
-void CreatureGodot::set_metadata_filename(const String& filename_in)
+void CreatureGodot::set_metadata_filename(String filename_in)
 {
     metadata_filename = filename_in;
     std::ifstream read_file;
@@ -361,21 +361,21 @@ String CreatureGodot::get_metadata_filename() const
 
 void CreatureGodot::set_texture(const Ref<Texture>& p_texture){
 
-	texture=p_texture;
+    texture=p_texture;
 
-	/*if (texture.is_valid()) {
-		uint32_t flags=texture->get_flags();
-		flags&=~Texture::FLAG_REPEAT;
-		if (tex_tile)
-			flags|=Texture::FLAG_REPEAT;
-		texture->set_flags(flags);
-	}*/
-	update();
+    /*if (texture.is_valid()) {
+        uint32_t flags=texture->get_flags();
+        flags&=~Texture::FLAG_REPEAT;
+        if (tex_tile)
+            flags|=Texture::FLAG_REPEAT;
+        texture->set_flags(flags);
+    }*/
+    update();
 }
 
 Ref<Texture> CreatureGodot::get_texture() const{
 
-	return texture;
+    return texture;
 }
 
 void CreatureGodot::set_mirror_y(bool flag_in)
@@ -389,7 +389,7 @@ bool CreatureGodot::get_mirror_y() const
     return mirror_y;
 }
 
-void CreatureGodot::set_active_item_swap(const String& region_name, int swap_idx)
+void CreatureGodot::set_active_item_swap(String region_name, int swap_idx)
 {
     if(manager)
     {
@@ -397,7 +397,7 @@ void CreatureGodot::set_active_item_swap(const String& region_name, int swap_idx
     }   
 }
 
-void CreatureGodot::remove_active_item_swap(const String& region_name)
+void CreatureGodot::remove_active_item_swap(String region_name)
 {
     if(manager)
     {
@@ -413,7 +413,7 @@ void CreatureGodot::set_anchor_points_active(bool flag_in)
     }
 }
 
-void CreatureGodot::make_point_cache(const String& animation_name_in, int gap_step)
+void CreatureGodot::make_point_cache(String animation_name_in, int gap_step)
 {
     if(manager)
     {
@@ -421,7 +421,29 @@ void CreatureGodot::make_point_cache(const String& animation_name_in, int gap_st
     }
 }
 
-void CreatureGodot::processSkinSwap()
+void CreatureGodot::add_skinswap(String name_in, Vector<String> custom_swap)
+{
+    if(metadata)
+    {
+        std::unordered_set<std::string> swap_set;
+        for(int i = 0; i < custom_swap.size(); i++)
+        {
+            swap_set.insert(std::string(custom_swap[i].utf8()));
+        }
+
+        metadata->addSkinSwap(std::string(name_in.utf8()), swap_set);
+    }
+}
+
+void CreatureGodot::remove_skinswap(String name_in)
+{
+    if(metadata)
+    {
+        metadata->removeSkinSwap(std::string(name_in.utf8()));
+    }
+}
+
+void CreatureGodot::process_skinswap()
 {
     int real_indices_size = 0;
     auto render_composition = manager->GetCreature()->GetRenderComposition();    
@@ -449,7 +471,7 @@ void CreatureGodot::processSkinSwap()
     }
 }
 
-void CreatureGodot::processLayerOrder(int time_in)
+void CreatureGodot::process_layerorder(int time_in)
 {
     metadata->updateIndicesAndPoints(
         manager->GetCreature()->GetGlobalIndices(),
@@ -474,14 +496,14 @@ void CreatureGodot::processLayerOrder(int time_in)
 }
 
 Vector2 
-CreatureGodot::get_bone_pos(const String& bone_name, float slide_factor)
+CreatureGodot::get_bone_pos(String bone_name, float slide_factor)
 {
     Vector2 ret_pt(0,0);
     
     if(manager)
     {
         auto  render_composition = manager->GetCreature()->GetRenderComposition();
-    	auto& bones_map = render_composition->getBonesMap();
+        auto& bones_map = render_composition->getBonesMap();
         
         std::string real_name(bone_name.utf8());
         if(bones_map.count(real_name) == 0)
@@ -491,7 +513,7 @@ CreatureGodot::get_bone_pos(const String& bone_name, float slide_factor)
         
         auto cur_bone = bones_map[real_name];
         auto pt1 = cur_bone->getWorldStartPt();
-		auto pt2 = cur_bone->getWorldEndPt();
+        auto pt2 = cur_bone->getWorldEndPt();
         auto rel_vec = (pt2 - pt1) * slide_factor;     
         auto set_vec = pt1 + rel_vec;
         
@@ -507,35 +529,40 @@ CreatureGodot::get_bone_pos(const String& bone_name, float slide_factor)
 
 void CreatureGodot::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("set_color","color"),&CreatureGodot::set_color);
-	ClassDB::bind_method(D_METHOD("get_color"),&CreatureGodot::get_color);
+    ClassDB::bind_method(D_METHOD("set_color","color"),&CreatureGodot::set_color);
+    ClassDB::bind_method(D_METHOD("get_color"),&CreatureGodot::get_color);
 
-	ClassDB::bind_method(D_METHOD("set_texture","texture"),&CreatureGodot::set_texture);
-	ClassDB::bind_method(D_METHOD("get_texture"),&CreatureGodot::get_texture);
+    ClassDB::bind_method(D_METHOD("set_texture","texture"),&CreatureGodot::set_texture);
+    ClassDB::bind_method(D_METHOD("get_texture"),&CreatureGodot::get_texture);
 
-	ClassDB::bind_method(D_METHOD("set_anim_speed","texture"),&CreatureGodot::set_anim_speed);
-	ClassDB::bind_method(D_METHOD("get_anim_speed"),&CreatureGodot::get_anim_speed);
+    ClassDB::bind_method(D_METHOD("set_anim_speed","texture"),&CreatureGodot::set_anim_speed);
+    ClassDB::bind_method(D_METHOD("get_anim_speed"),&CreatureGodot::get_anim_speed);
     
-    ClassDB::bind_method(D_METHOD("set_asset_filename","offset"),&CreatureGodot::set_asset_filename);
-	ClassDB::bind_method(D_METHOD("get_asset_filename"),&CreatureGodot::get_asset_filename);
-    
-	ClassDB::bind_method(D_METHOD("set_offset","offset"),&CreatureGodot::set_offset);
-	ClassDB::bind_method(D_METHOD("get_offset"),&CreatureGodot::get_offset);
+    ClassDB::bind_method(D_METHOD("set_asset_filename","asset_filename"),&CreatureGodot::set_asset_filename);
+    ClassDB::bind_method(D_METHOD("get_asset_filename"),&CreatureGodot::get_asset_filename);
 
-	ClassDB::bind_method(D_METHOD("set_mirror_y","offset"),&CreatureGodot::set_mirror_y);
-	ClassDB::bind_method(D_METHOD("get_mirror_y"),&CreatureGodot::get_mirror_y);
+    ClassDB::bind_method(D_METHOD("set_metadata_filename","metadata_filename"),&CreatureGodot::set_metadata_filename);
+    ClassDB::bind_method(D_METHOD("get_metadata_filename"),&CreatureGodot::get_metadata_filename);
 
-	ClassDB::bind_method(D_METHOD("set_anim_frame","offset"),&CreatureGodot::set_anim_frame);
-	ClassDB::bind_method(D_METHOD("get_anim_frame"),&CreatureGodot::get_anim_frame);
+    ClassDB::bind_method(D_METHOD("set_offset","offset"),&CreatureGodot::set_offset);
+    ClassDB::bind_method(D_METHOD("get_offset"),&CreatureGodot::get_offset);
 
-	ClassDB::bind_method(D_METHOD("set_anim_name","offset"),&CreatureGodot::set_anim_name);
-	ClassDB::bind_method(D_METHOD("get_anim_name"),&CreatureGodot::get_anim_name);
+    ClassDB::bind_method(D_METHOD("set_mirror_y","offset"),&CreatureGodot::set_mirror_y);
+    ClassDB::bind_method(D_METHOD("get_mirror_y"),&CreatureGodot::get_mirror_y);
+
+    ClassDB::bind_method(D_METHOD("set_anim_frame","offset"),&CreatureGodot::set_anim_frame);
+    ClassDB::bind_method(D_METHOD("get_anim_frame"),&CreatureGodot::get_anim_frame);
+
+    ClassDB::bind_method(D_METHOD("set_anim_name","offset"),&CreatureGodot::set_anim_name);
+    ClassDB::bind_method(D_METHOD("get_anim_name"),&CreatureGodot::get_anim_name);
     
     ClassDB::bind_method(D_METHOD("load_json"),&CreatureGodot::load_json);
     ClassDB::bind_method(D_METHOD("update_animation"),&CreatureGodot::update_animation);
     ClassDB::bind_method(D_METHOD("blend_to_animation"),&CreatureGodot::blend_to_animation);
     ClassDB::bind_method(D_METHOD("set_should_loop"),&CreatureGodot::set_should_loop);
-    ClassDB::bind_method(D_METHOD("setSkinSwapName"),&CreatureGodot::setSkinSwapName);
+    ClassDB::bind_method(D_METHOD("set_skinswap_name"),&CreatureGodot::set_skinswap_name);
+    ClassDB::bind_method(D_METHOD("add_skinswap"),&CreatureGodot::add_skinswap);
+    ClassDB::bind_method(D_METHOD("remove_skinswap"),&CreatureGodot::remove_skinswap);
     
     ClassDB::bind_method(D_METHOD("set_active_item_swap"),&CreatureGodot::set_active_item_swap);
     ClassDB::bind_method(D_METHOD("remove_active_item_swap"),&CreatureGodot::remove_active_item_swap);
@@ -545,14 +572,14 @@ void CreatureGodot::_bind_methods() {
     ClassDB::bind_method(D_METHOD("make_point_cache"),&CreatureGodot::make_point_cache);
 
     ClassDB::bind_method(D_METHOD("get_bone_pos"),&CreatureGodot::get_bone_pos);
-
-	ADD_PROPERTY( PropertyInfo(Variant::STRING,"anim_name"), "set_anim_name", "get_anim_name");
-	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_frame"), "set_anim_frame", "get_anim_frame");
-	ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"), "set_anim_speed", "get_anim_speed");
-	ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"), "set_asset_filename", "get_asset_filename");
-	ADD_PROPERTY( PropertyInfo(Variant::STRING,"metadata_filename"), "set_metadata_filename", "get_metadata_filename");
-	ADD_PROPERTY( PropertyInfo(Variant::BOOL,"mirror_y"), "set_mirror_y", "get_mirror_y");
-	ADD_PROPERTY( PropertyInfo(Variant::COLOR,"color"), "set_color", "get_color");
-	ADD_PROPERTY( PropertyInfo(Variant::VECTOR2,"offset"), "set_offset", "get_offset");
-	ADD_PROPERTY( PropertyInfo(Variant::OBJECT,"texture/texture",PROPERTY_HINT_RESOURCE_TYPE,"Texture"), "set_texture", "get_texture");
+    
+    ADD_PROPERTY( PropertyInfo(Variant::STRING,"anim_name"), "set_anim_name", "get_anim_name");
+    ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_frame"), "set_anim_frame", "get_anim_frame");
+    ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"), "set_anim_speed", "get_anim_speed");
+    ADD_PROPERTY( PropertyInfo(Variant::STRING,"asset_filename"), "set_asset_filename", "get_asset_filename");
+    ADD_PROPERTY( PropertyInfo(Variant::STRING,"metadata_filename"), "set_metadata_filename", "get_metadata_filename");
+    ADD_PROPERTY( PropertyInfo(Variant::BOOL,"mirror_y"), "set_mirror_y", "get_mirror_y");
+    ADD_PROPERTY( PropertyInfo(Variant::COLOR,"color"), "set_color", "get_color");
+    ADD_PROPERTY( PropertyInfo(Variant::VECTOR2,"offset"), "set_offset", "get_offset");
+    ADD_PROPERTY( PropertyInfo(Variant::OBJECT,"texture/texture",PROPERTY_HINT_RESOURCE_TYPE,"Texture"), "set_texture", "get_texture");
 }

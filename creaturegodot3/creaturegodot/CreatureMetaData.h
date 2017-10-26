@@ -36,6 +36,8 @@ namespace CreatureModule
 
         bool addSkinSwap(const std::string& swap_name, const std::unordered_set<std::string>& set_in);
 
+        bool removeSkinSwap(const std::string& swap_name);
+
     protected:
 
         const std::vector<int> * sampleOrder(const std::string& anim_name, int time_in) const;

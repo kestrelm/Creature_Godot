@@ -294,3 +294,14 @@ CreatureModule::CreatureMetaData::addSkinSwap(
     return true;    
 }
 
+bool 
+CreatureModule::CreatureMetaData::removeSkinSwap(const std::string& swap_name)
+{
+    if (skin_swaps.count(swap_name))
+    {
+        return false;
+    }
+
+    skin_swaps.erase(swap_name);
+    return true;
+}

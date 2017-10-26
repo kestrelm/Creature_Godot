@@ -10,14 +10,14 @@
 
 class CreatureGodot :  public Node2D {
 
-	GDCLASS(CreatureGodot, Node2D);
+    GDCLASS(CreatureGodot, Node2D);
 
     Vector<Vector2> points;
-	Vector<Vector2> uvs;
+    Vector<Vector2> uvs;
     Vector<int> indices, meta_indices, real_meta_indices;
     Color color;
     Vector<Color> fill_colors;
-	Ref<Texture> texture;
+    Ref<Texture> texture;
     String asset_filename, metadata_filename;
     float anim_speed;
     bool mirror_y;
@@ -30,81 +30,85 @@ class CreatureGodot :  public Node2D {
     const int INDICES_MODE_SKINSWAP = 2;
     int indices_process_mode;
     
-	Vector2 offset;
-	mutable bool rect_cache_dirty;
-	mutable Rect2 item_rect;
+    Vector2 offset;
+    mutable bool rect_cache_dirty;
+    mutable Rect2 item_rect;
     std::unique_ptr<CreatureModule::CreatureManager> manager;
     std::unique_ptr<CreatureModule::CreatureMetaData> metadata;
 
-	void _set_texture_rotationd(float p_rot);
-	float _get_texture_rotationd() const;
+    void _set_texture_rotationd(float p_rot);
+    float _get_texture_rotationd() const;
 
 protected:
 
-	void _notification(int p_what);
+    void _notification(int p_what);
     
     static void _bind_methods();
 
-    void processSkinSwap();
+    void process_skinswap();
 
-    void processLayerOrder(int time_in);
+    void process_layerorder(int time_in);
     
 public:
     CreatureGodot();
     
-    bool load_json(const String& filename_in);
+    bool load_json(String filename_in);
     
     void update_animation(float delta);
     
     bool blend_to_animation(String animation_name, float blend_delta);
 
-    void setSkinSwapName(String name_in);
+    void set_skinswap_name(String name_in);
+
+    void add_skinswap(String name_in, Vector<String> custom_swap);
+
+    void remove_skinswap(String name_in);
     
     void set_should_loop(bool flag_in);
     
-    void set_asset_filename(const String& filename_in);
+    void set_asset_filename(String filename_in);
     String get_asset_filename() const;
 
-    void set_metadata_filename(const String& filename_in);
+    void set_metadata_filename(String filename_in);
     String get_metadata_filename() const;
 
     void set_anim_speed(float value_in);
     float get_anim_speed() const;
 
-	void set_color(const Color& p_color);
-	Color get_color() const;
+    void set_color(Color p_color);
+    Color get_color() const;
 
-	void set_texture(const Ref<Texture>& p_texture);
-	Ref<Texture> get_texture() const;
+    void set_texture(const Ref<Texture>& p_texture);
+    Ref<Texture> get_texture() const;
     
     void set_offset(const Vector2& p_offset);
-	Vector2 get_offset() const;
+    Vector2 get_offset() const;
     
     void set_mirror_y(bool flag_in);
     bool get_mirror_y() const;
     
-    void set_active_item_swap(const String& region_name, int swap_idx);
-	void remove_active_item_swap(const String& region_name);
+    void set_active_item_swap(String region_name, int swap_idx);
+    void remove_active_item_swap(String region_name);
     
     void set_anchor_points_active(bool flag_in);
     
-    void make_point_cache(const String& animation_name_in, int gap_step);
+    void make_point_cache(String animation_name_in, int gap_step);
     
-    Vector2 get_bone_pos(const String& bone_name, float slide_factor);
+    Vector2 get_bone_pos(String bone_name, float slide_factor);
     
     void set_anim_frame(float frame_in);
     float get_anim_frame() const;
     
-    void set_anim_name(const String& name_in);
+    void set_anim_name(String name_in);
     String get_anim_name() const;
 
-	//editor stuff
+    //editor stuff
 
-	virtual void edit_set_pivot(const Point2& p_pivot);
-	virtual Point2 edit_get_pivot() const;
-	virtual bool edit_has_pivot() const;
+    virtual void edit_set_pivot(const Point2& p_pivot);
+    virtual Point2 edit_get_pivot() const;
+    virtual bool edit_has_pivot() const;
 
-	virtual Rect2 get_item_rect() const;
+    virtual Rect2 get_item_rect() const;
 };
 
 #endif
