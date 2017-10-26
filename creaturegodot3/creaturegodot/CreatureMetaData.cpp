@@ -89,13 +89,13 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
         {
             JsonNode * cur_node = *it;
             std::string cur_anim_name(cur_node->key);
-            std::unordered_map<int, std::string> cur_events_map;
+            std::unordered_map<int, std::pair<std::string, bool>> cur_events_map;
             for(auto a_it = JsonBegin(cur_node->value); a_it != JsonEnd(cur_node->value); ++a_it)
             {
                 auto cur_events_obj = *a_it;
                 auto cur_event_name = std::string(getJsonNode(*cur_events_obj, "event_name")->value.toString());
                 auto cur_switch_time = static_cast<int>(getJsonNode(*cur_events_obj, "switch_time")->value.toNumber());
-                cur_events_map[cur_switch_time] = cur_event_name;
+                cur_events_map[cur_switch_time] = std::make_pair(cur_event_name, false);
             }   
 
             anim_events_map[cur_anim_name] = cur_events_map;
@@ -130,11 +130,11 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
         return;
     } 
 
-    JsonNode * json_root = json_data.base_node.toNode();
-    for(auto it = JsonBegin(json_root->value); it != JsonEnd(json_root->value); ++it)
+    JsonNode * json_base = json_data.base_node.toNode();
+    while(json_base->next != nullptr)
     {
-        auto cur_key = std::string((*it)->key);
-        auto cur_node = *it;
+        auto cur_key = std::string(json_base->key);
+        auto cur_node = json_base;
         if(cur_key == "meshes")
         {
             parseMeshes(cur_node);
@@ -151,14 +151,38 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
         {
             parseSkinSwapList(cur_node);
         }        
+
+        json_base = json_base->next;
     }
 
     is_valid = true;
+    printInfo();
 }
 
 CreatureModule::CreatureMetaData::~CreatureMetaData()
 {
 
+}
+
+void CreatureModule::CreatureMetaData::printInfo()
+{
+    std::cout<<"\nCreatureMetaData SkinSwaps: "<<std::endl;
+    for(const auto& cur_data : skin_swaps)
+    {
+        std::cout<<"\t-"<<cur_data.first<<std::endl;
+    }
+
+    std::cout<<"\nCreatureMetaData Layer Order Animation: "<<std::endl;
+    for(const auto& cur_data : anim_order_map)
+    {
+        std::cout<<"\t-"<<cur_data.first<<" size: "<<cur_data.second.size()<<std::endl;
+    }
+
+    std::cout<<"\nCreatureMetaData Events: "<<std::endl;
+    for(const auto& cur_data : anim_events_map)
+    {
+        std::cout<<"\t-"<<cur_data.first<<" size: "<<cur_data.second.size()<<std::endl;
+    }
 }
 
 bool CreatureModule::CreatureMetaData::buildSkinSwapIndices(
@@ -304,4 +328,54 @@ CreatureModule::CreatureMetaData::removeSkinSwap(const std::string& swap_name)
 
     skin_swaps.erase(swap_name);
     return true;
+}
+
+void CreatureModule::CreatureMetaData::resetEvents(const std::string& anim_name)
+{
+    if(anim_events_map.count(anim_name) == 0)
+    {
+        return;
+    }
+
+    auto& cur_events = anim_events_map[anim_name];
+    for(auto& cur_data : cur_events)
+    {
+        cur_data.second.second = false;
+    }
+}
+
+bool  CreatureModule::CreatureMetaData::hasEvents(const std::string& anim_name) const
+{
+    return anim_events_map.count(anim_name) > 0;
+}
+
+std::string CreatureModule::CreatureMetaData::runEvents(const std::string& anim_name, int time_in)
+{
+    std::string ret_name;
+    if(anim_events_map.count(anim_name) == 0)
+    {
+        return ret_name;
+    }
+
+    int greatest_time = 0;
+    auto& cur_events = anim_events_map[anim_name];
+    for(auto& cur_data : cur_events)
+    {
+        auto trigger_time = cur_data.first;
+        auto& triggers = cur_data.second;
+        const auto& trigger_name = triggers.first;
+        auto& triggered = triggers.second;
+
+        if(triggered == false)
+        {
+            triggered = true;
+            if(trigger_time >= greatest_time)
+            {
+                ret_name = trigger_name;
+                greatest_time = trigger_time;                    
+            }
+        }
+    }
+
+    return ret_name;
 }

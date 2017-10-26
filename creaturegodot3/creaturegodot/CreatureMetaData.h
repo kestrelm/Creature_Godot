@@ -38,13 +38,21 @@ namespace CreatureModule
 
         bool removeSkinSwap(const std::string& swap_name);
 
+        void printInfo();
+
+        void resetEvents(const std::string& anim_name);
+
+        bool hasEvents(const std::string& anim_name) const;
+
+        std::string runEvents(const std::string& anim_name, int time_in);
+
     protected:
 
         const std::vector<int> * sampleOrder(const std::string& anim_name, int time_in) const;
 
         std::unordered_map<int, std::pair<int, int>> mesh_map;
         std::unordered_map<std::string, std::unordered_map<int, std::vector<int>>> anim_order_map;
-        std::unordered_map<std::string, std::unordered_map<int, std::string>> anim_events_map;
+        std::unordered_map<std::string, std::unordered_map<int, std::pair<std::string, bool>>> anim_events_map;
         std::unordered_map<std::string, std::unordered_set<std::string>> skin_swaps;
         bool is_valid;
     };

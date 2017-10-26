@@ -209,11 +209,75 @@ void CreatureGodot::disable_skinswap_or_order()
     indices_process_mode = INDICES_MODE_NONE;
 }
 
-void CreatureGodot::update_animation(float delta)
+void CreatureGodot::update_colors()
 {
     if(manager)
     {
+        if(fill_colors.size() != manager->GetCreature()->GetTotalNumPoints())
+        {
+            fill_colors.resize(manager->GetCreature()->GetTotalNumPoints());
+        }
+
+        auto& regions_map = manager->GetCreature()->GetRenderComposition()->getRegionsMap();
+        for (auto& cur_region_pair : regions_map)
+        {
+            auto cur_region = cur_region_pair.second;
+            auto start_pt_index = cur_region->getStartPtIndex();
+            auto end_pt_index = cur_region->getEndPtIndex();
+            auto cur_alpha = cur_region->getOpacity() / 100.0f;
+            for (auto i = start_pt_index; i <= end_pt_index; i++)
+            {
+                fill_colors[i].r = color.r * cur_alpha;
+                fill_colors[i].g = color.g * cur_alpha;
+                fill_colors[i].b = color.b * cur_alpha;
+                fill_colors[i].a = color.a * cur_alpha;
+            }
+        }
+    }
+}
+
+void CreatureGodot::update_animation(float delta)
+{
+    auto hasEvents = [&]()
+    {
+        if(metadata)
+        {
+            if(metadata->hasEvents(manager->GetActiveAnimationName()))
+            {
+                return true;
+            }    
+        }
+
+        return false;
+    };
+
+    auto processEvents = [&]()
+    {
+        std::string evt_name = 
+        metadata->runEvents(
+            manager->GetActiveAnimationName(),
+            static_cast<int>(manager->getActualRunTime()));
+        if(!evt_name.empty())
+        {
+            emit_signal("CreatureEvent", String(evt_name.c_str()));
+        }
+    };
+
+    if(manager)
+    {
+        auto old_time = manager->getActualRunTime();
+        bool has_events = hasEvents();                
+        if(has_events)
+        {
+            processEvents();
+        }
+
         manager->Update(delta * anim_speed);
+
+        if((old_time > manager->getActualRunTime()) && has_events)
+        {
+            metadata->resetEvents(manager->GetActiveAnimationName());
+        }
         
         // resize points, uvs and indices array
         if(reload_data)
@@ -226,6 +290,9 @@ void CreatureGodot::update_animation(float delta)
         }
         
         // fill in rendering data
+
+        // colors
+        update_colors();
         
         // indices/topology
         auto cur_indices = manager->GetCreature()->GetGlobalIndices();
@@ -277,14 +344,10 @@ Rect2 CreatureGodot::get_item_rect() const {
             else
                 item_rect.expand_to(pos);
         }
-        item_rect=item_rect.grow(20);
         rect_cache_dirty=false;
     }
 
-
     return item_rect;
-
-
 }
 
 void CreatureGodot::set_offset(const Vector2& p_offset) {
@@ -319,7 +382,13 @@ void CreatureGodot::_notification(int p_what) {
     switch(p_what) {
 
         case NOTIFICATION_DRAW: {
-            if((points.size() < 3) || (uvs.size() < 3))
+            bool use_meta_indices = (indices_process_mode != INDICES_MODE_NONE);
+            if((points.size() < 3) || (uvs.size() < 3) || (indices.size() % 3 != 0))
+            {
+                return;
+            }
+
+            if(use_meta_indices && (real_meta_indices.size() % 3 != 0))
             {
                 return;
             }
@@ -329,14 +398,14 @@ void CreatureGodot::_notification(int p_what) {
                manager->SetMirrorY(mirror_y);
             }
 
-            bool use_meta_indices = (indices_process_mode != INDICES_MODE_NONE);
             
             VS::get_singleton()->canvas_item_add_triangle_array(
                 get_canvas_item(),
                 use_meta_indices ? real_meta_indices : indices,
                 points,
                 fill_colors,
-                uvs,texture.is_valid()?texture->get_rid():RID());
+                uvs,texture.is_valid()?texture->get_rid():RID()
+            );
 
         } break;
     }
@@ -345,8 +414,6 @@ void CreatureGodot::_notification(int p_what) {
 void CreatureGodot::set_color(Color p_color){
 
     color=p_color;
-    fill_colors.clear();
-    fill_colors.push_back(color);
     update();
 }
 
@@ -374,13 +441,32 @@ String CreatureGodot::get_asset_filename() const
 
 void CreatureGodot::set_metadata_filename(String filename_in)
 {
-    metadata_filename = filename_in;
+    auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
+    std::cout<<"CreatureGodot - Loading MetaData: "<<global_path.utf8()<<std::endl;
+
+    auto metaFileExists = [&](const std::string& name) {
+        std::ifstream f(name.c_str());
+        return f.good();
+    };
+
+    if(filename_in.empty())
+    {
+        metadata_filename = "";
+        return;
+    }
+
+    if(!metaFileExists(std::string(global_path.utf8())))
+    {
+        return;
+    }
+
     std::ifstream read_file;
-    read_file.open(filename_in.c_str());
+    read_file.open(global_path.utf8());
     std::stringstream str_stream;
     str_stream << read_file.rdbuf();
     read_file.close();
 
+    metadata_filename = filename_in;
     metadata = std::unique_ptr<CreatureModule::CreatureMetaData>(
         new CreatureModule::CreatureMetaData(str_stream.str()));
 }

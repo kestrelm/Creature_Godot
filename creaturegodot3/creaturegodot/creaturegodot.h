@@ -49,6 +49,8 @@ protected:
     void process_skinswap();
 
     void process_layerorder(int time_in);
+
+    void update_colors();
     
 public:
     CreatureGodot();
