@@ -24,6 +24,7 @@ class CreatureGodot :  public Node2D {
     float anim_frame;
     String anim_name;
     String skinswap_name;
+    bool reload_data;
 
     const int INDICES_MODE_NONE = 0;
     const int INDICES_MODE_ORDER = 1;
@@ -63,6 +64,12 @@ public:
     void add_skinswap(String name_in, Vector<String> custom_swap);
 
     void remove_skinswap(String name_in);
+
+    void enable_skinswap();
+
+    void enable_layerorder();
+
+    void disable_skinswap_or_order();
     
     void set_should_loop(bool flag_in);
     
@@ -101,6 +108,8 @@ public:
     
     void set_anim_name(String name_in);
     String get_anim_name() const;
+
+    Vector<String> get_anim_clips() const;
 
     //editor stuff
 

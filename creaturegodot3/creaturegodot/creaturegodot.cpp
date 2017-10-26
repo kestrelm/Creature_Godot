@@ -87,6 +87,7 @@ CreatureGodot::CreatureGodot() {
     mirror_y = false;
     anim_frame = 0.0f;
     indices_process_mode = INDICES_MODE_NONE;    
+    reload_data = false;
 }
 
 bool 
@@ -193,6 +194,21 @@ String CreatureGodot::get_anim_name() const
     return anim_name;
 }
 
+void CreatureGodot::enable_skinswap()
+{
+    indices_process_mode = INDICES_MODE_SKINSWAP;
+}
+
+void CreatureGodot::enable_layerorder()
+{
+    indices_process_mode = INDICES_MODE_ORDER;    
+}
+
+void CreatureGodot::disable_skinswap_or_order()
+{
+    indices_process_mode = INDICES_MODE_NONE;
+}
+
 void CreatureGodot::update_animation(float delta)
 {
     if(manager)
@@ -200,12 +216,13 @@ void CreatureGodot::update_animation(float delta)
         manager->Update(delta * anim_speed);
         
         // resize points, uvs and indices array
-        if(points.size() == 0)
+        if(reload_data)
         {
             points.resize(manager->GetCreature()->GetTotalNumPoints());
             uvs.resize(points.size());
             indices.resize(manager->GetCreature()->GetTotalNumIndices());
             meta_indices.resize(manager->GetCreature()->GetTotalNumIndices());
+            reload_data = false;
         }
         
         // fill in rendering data
@@ -215,6 +232,16 @@ void CreatureGodot::update_animation(float delta)
         for(size_t i = 0; i < indices.size(); i++)
         {
             indices[i] = cur_indices[i];
+        }
+
+        // MetaData indices processing        
+        if(indices_process_mode == INDICES_MODE_ORDER)
+        {
+            process_layerorder(static_cast<int>(manager->getActualRunTime()));
+        }
+        else if(indices_process_mode == INDICES_MODE_SKINSWAP)
+        {
+            process_skinswap();
         }
         
         // points and uvs
@@ -292,19 +319,22 @@ void CreatureGodot::_notification(int p_what) {
     switch(p_what) {
 
         case NOTIFICATION_DRAW: {
-             if((points.size() < 3) || (uvs.size() < 3))
-             {
-                 return;
-             }
-             
-             if(manager)
-             {
-                manager->SetMirrorY(mirror_y);
-             }
+            if((points.size() < 3) || (uvs.size() < 3))
+            {
+                return;
+            }
+            
+            if(manager)
+            {
+               manager->SetMirrorY(mirror_y);
+            }
+
+            bool use_meta_indices = (indices_process_mode != INDICES_MODE_NONE);
             
             VS::get_singleton()->canvas_item_add_triangle_array(
                 get_canvas_item(),
-                indices,points,
+                use_meta_indices ? real_meta_indices : indices,
+                points,
                 fill_colors,
                 uvs,texture.is_valid()?texture->get_rid():RID());
 
@@ -331,6 +361,7 @@ void CreatureGodot::set_asset_filename(String filename_in)
     
     if(retval)
     {
+        reload_data = true;
         asset_filename = filename_in;
         update_animation(0.1f);        
     }
@@ -527,6 +558,21 @@ CreatureGodot::get_bone_pos(String bone_name, float slide_factor)
     return ret_pt;
 }
 
+Vector<String> CreatureGodot::get_anim_clips() const
+{
+    Vector<String> ret_names;
+
+    if(manager) {
+        const auto& all_anims = manager->GetCreature()->GetAnimationNames();
+        for(const auto& cur_name : all_anims)
+        {
+            ret_names.push_back(String(cur_name.c_str()));
+        }        
+    }
+
+    return ret_names;
+}
+
 void CreatureGodot::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("set_color","color"),&CreatureGodot::set_color);
@@ -560,9 +606,15 @@ void CreatureGodot::_bind_methods() {
     ClassDB::bind_method(D_METHOD("update_animation"),&CreatureGodot::update_animation);
     ClassDB::bind_method(D_METHOD("blend_to_animation"),&CreatureGodot::blend_to_animation);
     ClassDB::bind_method(D_METHOD("set_should_loop"),&CreatureGodot::set_should_loop);
+    ClassDB::bind_method(D_METHOD("get_anim_clips"),&CreatureGodot::get_anim_clips);
+    
     ClassDB::bind_method(D_METHOD("set_skinswap_name"),&CreatureGodot::set_skinswap_name);
     ClassDB::bind_method(D_METHOD("add_skinswap"),&CreatureGodot::add_skinswap);
     ClassDB::bind_method(D_METHOD("remove_skinswap"),&CreatureGodot::remove_skinswap);
+
+    ClassDB::bind_method(D_METHOD("enable_skinswap"),&CreatureGodot::enable_skinswap);
+    ClassDB::bind_method(D_METHOD("enable_layerorder"),&CreatureGodot::enable_layerorder);
+    ClassDB::bind_method(D_METHOD("disable_skinswap_or_order"),&CreatureGodot::disable_skinswap_or_order);
     
     ClassDB::bind_method(D_METHOD("set_active_item_swap"),&CreatureGodot::set_active_item_swap);
     ClassDB::bind_method(D_METHOD("remove_active_item_swap"),&CreatureGodot::remove_active_item_swap);

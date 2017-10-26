@@ -413,6 +413,7 @@ static void FillBoneCache(JsonNode& json_obj,
 
     cache_manager.init(start_time, end_time);
     
+	int prev_time = start_time;
     for (JsonIterator it = JsonBegin(base_obj->value);
          it != JsonEnd(base_obj->value);
          ++it)
@@ -441,6 +442,40 @@ static void FillBoneCache(JsonNode& json_obj,
         
         int set_index = cache_manager.getIndexByTime(cur_time);
         cache_manager.getCacheTable()[set_index] = cache_list;
+
+		auto gap_diff = cur_time - prev_time;
+		if (gap_diff > 1)
+		{
+			auto ptInterp = [&](const glm::vec4& src_pt, const glm::vec4& target_pt, float fraction)
+			{
+				return ((1.0f - fraction ) * src_pt) + (fraction * target_pt);
+			};
+
+			// Gap Step
+			auto prev_index = cache_manager.getIndexByTime(prev_time);
+			for (int j = 1; j < gap_diff; j++)
+			{
+				auto gap_fraction = (float)j / (float)gap_diff;
+				std::vector<meshBoneCache> gap_cache_list;
+				gap_cache_list.reserve(cache_list.size());
+				for (size_t k = 0; k < cache_list.size(); k++)
+				{
+					auto& cur_data = cache_manager.getCacheTable()[set_index][k];
+					auto& prev_data = cache_manager.getCacheTable()[prev_index][k];
+					meshBoneCache gap_cache_data(cur_data.getKey());
+					gap_cache_data.setWorldStartPt(
+						ptInterp(prev_data.getWorldStartPt(), cur_data.getWorldStartPt(), gap_fraction));
+					gap_cache_data.setWorldEndPt(
+						ptInterp(prev_data.getWorldEndPt(), cur_data.getWorldEndPt(), gap_fraction));
+
+					gap_cache_list.push_back(gap_cache_data);
+				}
+
+				cache_manager.getCacheTable()[prev_index + j] = gap_cache_list;
+			}
+		}
+
+		prev_time = cur_time;
     }
     
     cache_manager.makeAllReady();
@@ -456,6 +491,7 @@ static void FillDeformationCache(JsonNode& json_obj,
 
     cache_manager.init(start_time, end_time);
     
+	int prev_time = start_time;
     for (JsonIterator it = JsonBegin(base_obj->value);
          it != JsonEnd(base_obj->value);
          ++it)
@@ -493,6 +529,51 @@ static void FillDeformationCache(JsonNode& json_obj,
         
         int set_index = cache_manager.getIndexByTime(cur_time);
         cache_manager.getCacheTable()[set_index] = cache_list;
+
+		auto gap_diff = cur_time - prev_time;
+		if (gap_diff > 1)
+		{
+			auto ptsInterp = [&](const std::vector<glm::vec2> src_pts, const std::vector<glm::vec2> target_pts, float fraction)
+			{
+				std::vector<glm::vec2> ret_pts(src_pts.size());
+				for (size_t i = 0; i < src_pts.size(); i++)
+				{
+					ret_pts[i] = ((1.0f - fraction) * src_pts[i]) + (fraction * target_pts[i]);
+				}
+
+				return ret_pts;
+			};
+
+			// Gap Step
+			auto prev_index = cache_manager.getIndexByTime(prev_time);
+			for (int j = 1; j < gap_diff; j++)
+			{
+				auto gap_fraction = (float)j / (float)gap_diff;
+				std::vector<meshDisplacementCache> gap_cache_list;
+				gap_cache_list.reserve(cache_list.size());
+				for (size_t k = 0; k < cache_list.size(); k++)
+				{
+					auto& cur_data = cache_manager.getCacheTable()[set_index][k];
+					auto& prev_data = cache_manager.getCacheTable()[prev_index][k];
+					meshDisplacementCache gap_cache_data(cur_data.getKey());
+					if (!cur_data.getLocalDisplacements().empty())
+					{
+						gap_cache_data.setLocalDisplacements(
+							ptsInterp(prev_data.getLocalDisplacements(), cur_data.getLocalDisplacements(), gap_fraction));
+					}
+					else {
+						gap_cache_data.setPostDisplacements(
+							ptsInterp(prev_data.getPostDisplacements(), cur_data.getPostDisplacements(), gap_fraction));
+					}
+
+					gap_cache_list.push_back(gap_cache_data);
+				}
+
+				cache_manager.getCacheTable()[prev_index + j] = gap_cache_list;
+			}
+		}
+
+		prev_time = cur_time;
     }
     
     cache_manager.makeAllReady();
@@ -563,6 +644,7 @@ static void FillOpacityCache(JsonNode& json_obj,
 		return;
 	}
 
+	int prev_time = start_time;
 	for (JsonIterator it = JsonBegin(base_obj->value);
 		it != JsonEnd(base_obj->value);
 		++it)
@@ -589,10 +671,40 @@ static void FillOpacityCache(JsonNode& json_obj,
 
 		int set_index = cache_manager.getIndexByTime(cur_time);
 		cache_manager.getCacheTable()[set_index] = cache_list;
+
+		auto gap_diff = cur_time - prev_time;
+		if (gap_diff > 1)
+		{
+			auto scalarInterp = [&](const float& src_val, const float& target_val, float fraction)
+			{
+				return ((1.0f - fraction) * src_val) + (fraction * target_val);
+			};
+
+			// Gap Step
+			auto prev_index = cache_manager.getIndexByTime(prev_time);
+			for (int j = 1; j < gap_diff; j++)
+			{
+				auto gap_fraction = (float)j / (float)gap_diff;
+				std::vector<meshOpacityCache> gap_cache_list;
+				gap_cache_list.reserve(cache_list.size());
+				for (size_t k = 0; k < cache_list.size(); k++)
+				{
+					auto& cur_data = cache_manager.getCacheTable()[set_index][k];
+					auto& prev_data = cache_manager.getCacheTable()[prev_index][k];
+					meshOpacityCache gap_cache_data(cur_data.getKey());
+					gap_cache_data.setOpacity(scalarInterp(prev_data.getOpacity(), cur_data.getOpacity(), gap_fraction));
+
+					gap_cache_list.push_back(gap_cache_data);
+				}
+
+				cache_manager.getCacheTable()[prev_index + j] = gap_cache_list;
+			}
+		}
+
+		prev_time = cur_time;
 	}
 
 	cache_manager.makeAllReady();
-
 }
 
 static std::map<std::string, std::vector<CreatureModule::CreatureUVSwapPacket> >
