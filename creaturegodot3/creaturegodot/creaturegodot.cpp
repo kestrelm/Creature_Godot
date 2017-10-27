@@ -430,7 +430,8 @@ void CreatureGodot::set_asset_filename(String filename_in)
     {
         reload_data = true;
         asset_filename = filename_in;
-        update_animation(0.1f);        
+        update_animation(0.1f);     
+        rect_cache_dirty = true;   
     }
 }
 
@@ -444,18 +445,13 @@ void CreatureGodot::set_metadata_filename(String filename_in)
     auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
     std::cout<<"CreatureGodot - Loading MetaData: "<<global_path.utf8()<<std::endl;
 
-    auto metaFileExists = [&](const std::string& name) {
-        std::ifstream f(name.c_str());
-        return f.good();
-    };
-
     if(filename_in.empty())
     {
         metadata_filename = "";
         return;
     }
 
-    if(!metaFileExists(std::string(global_path.utf8())))
+    if(!is_file_exist(global_path.utf8()))
     {
         return;
     }
