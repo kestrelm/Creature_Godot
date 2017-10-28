@@ -1,5 +1,6 @@
 #include "creaturegodot.h"
 #include "project_settings.h"
+#include "engine.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -120,7 +121,15 @@ CreatureGodot::load_json(const String filename_in)
     }
     
     manager->SetActiveAnimationName(first_animation_name);
-    manager->SetAutoBlending(true);
+
+    if(!Engine::get_singleton()->is_editor_hint())
+    {
+        std::cout<<"CreatureGodot::load_json() -Enabling AutoBlending for: "<<filename_in.utf8()<<std::endl;
+        manager->SetAutoBlending(true);        
+    }
+    else {
+        std::cout<<"CreatureGodot::load_json() -In Editor, Disabling Autoblending for: "<<filename_in.utf8()<<std::endl;
+    }
     anim_name = String(first_animation_name.c_str());
     
     return true;
