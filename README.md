@@ -13,6 +13,15 @@ Sample UtahRaptor Artwork: Emily Willoughby (http://emilywilloughby.com)
 
 ![Alt text](https://github.com/kestrelm/Creature_Godot/blob/master/splash.png)
 
+### Getting Started
+
+An introductory video tutorial about using the plugin is [here](https://www.youtube.com/watch?v=Z2oeDl_2ZU8)
+
+
+### Animation Player / Animation Properties
+
+Watch this tutorial to learn how to manipulate/playback a Creature Godot object with Godot's AnimationPlayer node [here](https://youtu.be/afSObHcj9O8)
+
 ## Godot 3 + Future Roadmap
 
 This documentation is updated for the new [**Godot 3.0**](<https://www.youtube.com/watch?v=XptlVErsL-o>) engine. Make sure you grab the latest engine sources from the [Godot Engine Github](https://github.com/godotengine/godot). The source for the new **Creature Godot 3 Runtimes** is located [here](<https://github.com/kestrelm/Creature_Godot/tree/master/creaturegodot3>). Moving forwards, **all new features will be added to the Godot 3 Creature Runtimes**. 
@@ -32,15 +41,6 @@ This documentation is updated for the new [**Godot 3.0**](<https://www.youtube.c
 ### Godot 3 Sample Project/Demo
 
 There is a sample **Demo Project** for **Godot 3** located [here](<https://github.com/kestrelm/Creature_Godot/tree/master/creaturegodot3/Godot3Demo>) In it, there are a couple of simple scripts in both **GDScript** and Godot **VisualScript** format showing you how to drive the **Creature** characters using the runtimes. They demonstrate basic animation blending/switching as well as Skin/Item swapping.
-
-### Getting Started
-
-An introductory video tutorial about using the plugin is [here](https://youtu.bejkjWR21lAqY)
-
-### Animation Player / Animation Properties
-
-Watch this tutorial to learn how to manipulate/playback a Creature Godot object with Godot's AnimationPlayer node [here](https://youtu.be/afSObHcj9O8)
-
 
 
 ## Compilation & Installation
