@@ -74,7 +74,9 @@ static bool add_loaded_animation(CreatureModule::CreatureManager * creature_mana
         return true;
     }
     else {
+#ifdef _CREATURE_DEBUG        
         std::cout << "ERROR! ACreatureActor::AddLoadedAnimation() Animation with filename: " << filename_in << " and name: " << name_in << " not loaded!" << std::endl;
+#endif        
     }
 
     return false;
@@ -95,17 +97,21 @@ bool
 CreatureGodot::load_json(const String filename_in)
 {
     auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
+#ifdef _CREATURE_DEBUG        
     std::cout<<"CreatureGodot::load_json() - Loading file: "<<global_path.utf8()<<std::endl;
-    
+#endif    
     std::string load_filename(global_path.utf8());
     auto can_load = LoadDataPacket(load_filename);
     if(!can_load)
     {
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() - ERRROR! Could not load file: "<<load_filename<<std::endl;
+#endif
         return false;
     }
+#ifdef _CREATURE_DEBUG        
     std::cout<<"CreatureGodot::load_json() - Finished loading file: "<<load_filename<<std::endl;
-
+#endif
     auto json_data = global_load_data_packets[load_filename];
     auto cur_creature = std::shared_ptr<CreatureModule::Creature>(new CreatureModule::Creature(*json_data));    
     manager = std::unique_ptr<CreatureModule::CreatureManager> (new CreatureModule::CreatureManager(cur_creature));
@@ -114,21 +120,29 @@ CreatureGodot::load_json(const String filename_in)
     auto first_animation_name = all_animation_names[0];
     for (auto& cur_name : all_animation_names)
     {
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() - Trying to load animation: "<<cur_name<<std::endl;
+#endif        
         load_animation(load_filename, cur_name);
         add_loaded_animation(manager.get(), load_filename, cur_name);
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() - Loaded animation: "<<cur_name<<std::endl;
+#endif        
     }
     
     manager->SetActiveAnimationName(first_animation_name);
 
     if(!Engine::get_singleton()->is_editor_hint())
     {
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() -Enabling AutoBlending for: "<<filename_in.utf8()<<std::endl;
+#endif        
         manager->SetAutoBlending(true);        
     }
     else {
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() -In Editor, Disabling Autoblending for: "<<filename_in.utf8()<<std::endl;
+#endif        
     }
     anim_name = String(first_animation_name.c_str());
     
@@ -140,7 +154,9 @@ bool CreatureGodot::blend_to_animation(String animation_name, float blend_delta)
     auto real_anim_name = std::string(animation_name.utf8());
     if(manager->GetAllAnimations().count(real_anim_name) == 0)
     {
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::blend_to_animation() - ERROR! Animation name: "<<real_anim_name<<" does not exist."<<std::endl;
+#endif        
         return false;
     }
     
@@ -452,7 +468,9 @@ String CreatureGodot::get_asset_filename() const
 void CreatureGodot::set_metadata_filename(String filename_in)
 {
     auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
+#ifdef _CREATURE_DEBUG        
     std::cout<<"CreatureGodot - Loading MetaData: "<<global_path.utf8()<<std::endl;
+#endif    
 
     if(filename_in.empty())
     {

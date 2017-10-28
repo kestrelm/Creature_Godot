@@ -126,7 +126,9 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
     JsonDataHelper json_data;
     auto status = loadJsonFromStr(json_str, json_data);
     if(status != JSON_PARSE_OK) {
+#ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureMetaData() - Error parsing Meta Data JSON!"<<std::endl;
+#endif        
         return;
     } 
 
@@ -166,6 +168,7 @@ CreatureModule::CreatureMetaData::~CreatureMetaData()
 
 void CreatureModule::CreatureMetaData::printInfo()
 {
+#ifdef _CREATURE_DEBUG        
     std::cout<<"\nCreatureMetaData SkinSwaps: "<<std::endl;
     for(const auto& cur_data : skin_swaps)
     {
@@ -183,6 +186,7 @@ void CreatureModule::CreatureMetaData::printInfo()
     {
         std::cout<<"\t-"<<cur_data.first<<" size: "<<cur_data.second.size()<<std::endl;
     }
+#endif    
 }
 
 bool CreatureModule::CreatureMetaData::buildSkinSwapIndices(
