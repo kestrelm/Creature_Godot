@@ -13,4 +13,4 @@ if env['p'] != 'windows':
 	env_mymodule.add_source_files(env.modules_sources,"./gason/*.cpp") # just add all cpp files to the build
 else:
 	env_mymodule.add_source_files(env.modules_sources,"*.cpp")
-    
+	env_mymodule.add_source_files(env.modules_sources,"./gason/*.cpp") # just add all cpp files to the build
