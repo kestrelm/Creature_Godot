@@ -19,11 +19,11 @@ light_mode = 0
 [node name="Node2D" type="Node2D"]
 
 material = SubResource( 1 )
-position = Vector2( 592.443, 350.698 )
+position = Vector2( 588.833, 349.796 )
 scale = Vector2( 10.9637, 11.0336 )
 _sections_unfolded = [ "Material", "Transform" ]
 
-[node name="CreatureGodotHorseman" type="CreatureGodot" parent="."]
+[node name="CreatureGodotHorseman" type="CreatureGodot" parent="." index="0"]
 
 position = Vector2( -2.41241, 1.08478 )
 scale = Vector2( 2.27676, 2.35959 )
@@ -39,9 +39,9 @@ texture/texture = ExtResource( 1 )
 script = ExtResource( 2 )
 _sections_unfolded = [ "texture" ]
 
-[node name="CreatureGodotSwap" type="CreatureGodot" parent="."]
+[node name="CreatureGodotSwap" type="CreatureGodot" parent="." index="1"]
 
-position = Vector2( 18.8114, -0.479858 )
+position = Vector2( 18.7371, -0.479858 )
 scale = Vector2( 2.99933, 2.73204 )
 anim_name = "default"
 anim_frame = 0.0
@@ -55,7 +55,7 @@ texture/texture = ExtResource( 3 )
 script = ExtResource( 4 )
 _sections_unfolded = [ "texture" ]
 
-[node name="CreatureGodotFox" type="CreatureGodot" parent="."]
+[node name="CreatureGodotFox" type="CreatureGodot" parent="." index="2"]
 
 position = Vector2( -25.5196, 5.66517 )
 scale = Vector2( 1.48269, 1.51808 )
@@ -71,7 +71,7 @@ texture/texture = ExtResource( 5 )
 script = ExtResource( 6 )
 _sections_unfolded = [ "texture" ]
 
-[node name="CreatureGodotBat" type="CreatureGodot" parent="."]
+[node name="CreatureGodotBat" type="CreatureGodot" parent="." index="3"]
 
 position = Vector2( -32.2712, -9.23989 )
 scale = Vector2( 1.14568, 1.21867 )
@@ -87,7 +87,7 @@ texture/texture = ExtResource( 7 )
 script = ExtResource( 8 )
 _sections_unfolded = [ "texture" ]
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." index="4"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -100,8 +100,8 @@ margin_bottom = 22.0
 grow_horizontal = 0
 grow_vertical = 0
 rect_pivot_offset = Vector2( 0, 0 )
-rect_clip_content = false
 mouse_filter = 1
+mouse_default_cursor_shape = 0
 size_flags_horizontal = 1
 size_flags_vertical = 1
 texture = ExtResource( 9 )

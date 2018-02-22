@@ -11,7 +11,7 @@ config_version=3
 [application]
 
 config/name="New Game Project"
-run/main_scene="res://CreatureGodot.tscn"
+run/main_scene="res://morphTest.tscn"
 config/icon="res://icon.png"
 
 [gdnative]

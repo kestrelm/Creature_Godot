@@ -105,6 +105,7 @@ namespace CreatureModule
 
     			float sample_val = sampleFilterPt(
     				q11, q12, q21, q22, x1, y1, x2, y2, img_pt.x, img_pt.y);
+				
     			morph_data.weights[i] = sample_val;
     		}
     	}

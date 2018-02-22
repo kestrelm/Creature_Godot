@@ -4,6 +4,14 @@ importer="texture"
 type="StreamTexture"
 path="res://.import/fox.png-9d81b9bd85810e07c626f6b5830ddd11.stex"
 
+[deps]
+
+source_file="res://fox.png"
+source_md5="e7b9f917b3227036427e04d4ac9e342b"
+
+dest_files=[ "res://.import/fox.png-9d81b9bd85810e07c626f6b5830ddd11.stex" ]
+dest_md5="ae61323867dfb9c15f78a682a32ef050"
+
 [params]
 
 compress/mode=0

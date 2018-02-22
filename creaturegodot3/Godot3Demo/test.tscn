@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://fox.png" type="Texture" id=1]
+[ext_resource path="res://CreatureGodot.gd" type="Script" id=2]
+
+[node name="CreatureGodot" type="CreatureGodot"]
+
+position = Vector2( 526.345, 292.616 )
+scale = Vector2( 21.4189, 22.9509 )
+anim_name = "default"
+anim_frame = 0.0
+anim_speed = 2.0
+asset_filename = "res://fox.json"
+metadata_filename = ""
+mirror_y = false
+color = Color( 1, 1, 1, 1 )
+offset = Vector2( 0, 0 )
+texture/texture = ExtResource( 1 )
+script = ExtResource( 2 )
+_sections_unfolded = [ "texture" ]
+
+

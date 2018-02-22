@@ -4,6 +4,14 @@ importer="texture"
 type="StreamTexture"
 path="res://.import/swapGirl.png-2c29982487a271b15531ec5ece4b77a7.stex"
 
+[deps]
+
+source_file="res://swapGirl.png"
+source_md5="8a724fc1dc77435cc8822651cb8d3627"
+
+dest_files=[ "res://.import/swapGirl.png-2c29982487a271b15531ec5ece4b77a7.stex" ]
+dest_md5="195bcfd4742f9e56ee59bd0a91f46b8b"
+
 [params]
 
 compress/mode=0

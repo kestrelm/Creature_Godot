@@ -167,7 +167,49 @@ You can also add your own **Custom Skin Swap** at runtime by calling:
 This adds a new custom **Skin Swap** with the specified name and item list into the system. Similarly, you can remove a **Skin Swap** by calling **remove_skinswap(name)**. To disable **Skin Swap** and return back to normal playback mode, call:
 
     self.disable_skinswap()
-    
+
+### 5. Morph Targets
+
+Real-time Morph Targets enable you to achieve some sophistcated effecs, including the ability to have user-controllable front facing characters that will turn their Heads/eyes towards a desired target point. Please read up on [Morph Targets](https://www.kestrelmoon.com/creaturedocs/Animation/Morph_Targets_For_GameEngines.html) to learn how to setup **Morph Targets** in the Creature Animation Tool first before continuing.
+
+**Morph Targets** data are stored in the **MetaData** file so make sure you have connected/setup the **MetaData** slot of the **CreatureGodot** node before you start.
+
+To activate **Morph Targets**, do the following:
+
+    self.set_morph_targets_active(true)
+
+Then at each update step, make sure you point your morph targets to a target point with a source base point and radius:
+
+	  self.set_morph_targets_pt(target_pos, src_pos, radius)    
+
+The full demo sample ( **An Owl Head turning character, Artwork by David Revoy, CC-BY-SA**) has an Owl Character that will look at a target tracker polygon. The full simple example looks like this:
+
+    extends CreatureGodot
+
+    func _ready():
+    	set_process(true)
+    	self.set_morph_targets_active(true)
+    	pass
+
+    func _process(delta):
+    	var poly = get_node("../Polygon2D")	
+    	self.set_morph_targets_pt(poly.global_position, self.global_position - Vector2(-10, 200), 10.0)
+    		
+    	self.update_animation(delta)
+    	
+    func _input(event):
+    	var poly = get_node("../Polygon2D")	
+    	if(event is InputEventKey):
+    		if(event.scancode == KEY_A):
+    			poly.position.x -= 10
+    		elif(event.scancode == KEY_D):
+    			poly.position.x += 10
+    		elif(event.scancode == KEY_W):
+    			poly.position.y -= 10
+    		elif(event.scancode == KEY_S):
+    			poly.position.y += 10
+
+Here, we have a polygon node object that is driven by the W, A, S, D keys. The owl character which is of **CreatureGodot** node type uses **Morph Targets** to perform a head-turning action tracking the position of the polygon. Play around with the provided sample to learn more about this powerful functionality.    
          
 ### Animation Functions
 **set_mirror_y(flag_in)** - Sets a boolean to flip the character along the Y axis

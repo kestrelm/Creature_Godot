@@ -4,6 +4,14 @@ importer="texture"
 type="StreamTexture"
 path="res://.import/horseman.png-98b7704c75351a5f80042c2c29bb915b.stex"
 
+[deps]
+
+source_file="res://horseman.png"
+source_md5="cef7cd507e3e42e3ec4e5312d4550e2d"
+
+dest_files=[ "res://.import/horseman.png-98b7704c75351a5f80042c2c29bb915b.stex" ]
+dest_md5="9a4eed289bc4e678cde9c68c916d2e9f"
+
 [params]
 
 compress/mode=0

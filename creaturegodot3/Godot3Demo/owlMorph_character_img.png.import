@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/bat.png-8c5f11e0110a5921c6efd8f18e634996.stex"
+path="res://.import/owlMorph_character_img.png-164d16786b507d055c83ca953317b0e2.stex"
 
 [deps]
 
-source_file="res://bat.png"
-source_md5="f47b89ff17b8d04a84f8956a5be14027"
+source_file="res://owlMorph_character_img.png"
+source_md5="c10e8a580960e6e1b39821039355bcff"
 
-dest_files=[ "res://.import/bat.png-8c5f11e0110a5921c6efd8f18e634996.stex" ]
-dest_md5="4b51b0087f5ba239f0767df84efa0e0c"
+dest_files=[ "res://.import/owlMorph_character_img.png-164d16786b507d055c83ca953317b0e2.stex" ]
+dest_md5="62e31d8c747ddc1656cebb13923e7a7d"
 
 [params]
 

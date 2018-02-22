@@ -9,6 +9,8 @@
 static std::map<std::string, std::shared_ptr<CreatureModule::CreatureAnimation> > global_animations;
 static std::map<std::string, std::shared_ptr<CreatureModule::CreatureLoadDataPacket> > global_load_data_packets;
 
+//#define _CREATURE_DEBUG
+
 static bool is_file_exist(const char *fileName)
 {
     std::ifstream infile(fileName);
@@ -698,6 +700,10 @@ Vector<String> CreatureGodot::get_anim_clips() const
 void CreatureGodot::set_morph_targets_active(bool flag_in)
 {
     run_morph_targets = flag_in;
+    if(run_morph_targets)
+    {
+        manager->SetBlending(false);
+    }
 }
 
 bool CreatureGodot::get_morph_targets_active() const
@@ -716,8 +722,8 @@ void CreatureGodot::set_morph_targets_pt(const Vector2& pt_in, const Vector2& ba
 		if (metadata->getMorphData().isValid())
 		{
 			metadata->computeMorphWeightsWorld(
-				glm::vec2(char_pt_pos.x, -char_pt_pos.y),
-				glm::vec2(char_base_pos.x, -char_base_pos.y),
+				glm::vec2(char_pt_pos.x, char_pt_pos.y),
+				glm::vec2(char_base_pos.x, char_base_pos.y),
 				radius
 			);
 		}        

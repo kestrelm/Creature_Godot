@@ -1,0 +1,131 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://owlMorph_character_img.png" type="Texture" id=1]
+[ext_resource path="res://morphTest.gd" type="Script" id=2]
+[ext_resource path="res://robotoFont2.tres" type="DynamicFont" id=3]
+[ext_resource path="res://robotoFont.tres" type="DynamicFont" id=4]
+
+[node name="Node2D" type="Node2D" index="0"]
+
+[node name="CreatureGodot" type="CreatureGodot" parent="." index="0"]
+
+position = Vector2( 544.092, 512.927 )
+scale = Vector2( 50, 50 )
+anim_name = "default"
+anim_frame = 0.0
+anim_speed = 2.0
+asset_filename = "res://owlMorph_character_data.json"
+metadata_filename = "res://owlMorph_character_meta.mdata"
+mirror_y = false
+color = Color( 1, 1, 1, 1 )
+offset = Vector2( 0, 0 )
+texture/texture = ExtResource( 1 )
+script = ExtResource( 2 )
+_sections_unfolded = [ "Transform", "texture" ]
+
+[node name="Polygon2D" type="Polygon2D" parent="." index="1"]
+
+position = Vector2( 565.158, 235.703 )
+scale = Vector2( 0.1276, 0.1025 )
+polygon = PoolVector2Array( -1.159, 9.7355, 95.7115, 101.596, -16.1907, 163.392, -54.6049, 79.8832 )
+uv = PoolVector2Array(  )
+color = Color( 1, 0.890625, 0, 1 )
+vertex_colors = PoolColorArray(  )
+offset = Vector2( 0, 0 )
+antialiased = true
+texture = null
+texture_offset = Vector2( 0, 0 )
+texture_scale = Vector2( 1, 1 )
+texture_rotation_degrees = 0.0
+invert_enable = false
+invert_border = 100.0
+
+[node name="Label2" type="Label" parent="." index="2"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 610.0
+margin_top = 19.0
+margin_right = 1003.0
+margin_bottom = 99.0
+rect_pivot_offset = Vector2( 0, 0 )
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 4
+custom_fonts/font = ExtResource( 3 )
+custom_colors/font_color = Color( 1, 0.84375, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+text = "W, A, S, D Keys move Head Tracker Polygon"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+_sections_unfolded = [ "Rect", "custom_colors", "custom_fonts" ]
+
+[node name="Label3" type="Label" parent="." index="3"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 646.0
+margin_top = 47.0
+margin_right = 970.0
+margin_bottom = 79.0
+rect_pivot_offset = Vector2( 0, 0 )
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 4
+custom_fonts/font = ExtResource( 3 )
+custom_colors/font_color = Color( 1, 0.84375, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+text = "Owl Head Turns + Tracks Polyygon"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+_sections_unfolded = [ "Rect", "custom_colors", "custom_fonts" ]
+
+[node name="ColorRect" type="ColorRect" parent="." index="4"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 506.0
+margin_right = 1028.0
+margin_bottom = 581.0
+rect_pivot_offset = Vector2( 0, 0 )
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+color = Color( 0.0664063, 0.0542145, 0.0542145, 0.392157 )
+
+[node name="Label" type="Label" parent="." index="5"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 131.0
+margin_top = 514.0
+margin_right = 1220.0
+margin_bottom = 737.0
+rect_pivot_offset = Vector2( 0, 0 )
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 4
+custom_fonts/font = ExtResource( 4 )
+custom_colors/font_color = Color( 0.890625, 0.890625, 0.890625, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+text = "Creature Real-time Morph Targets Demo"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+_sections_unfolded = [ "Rect", "custom_colors", "custom_fonts" ]
+
+

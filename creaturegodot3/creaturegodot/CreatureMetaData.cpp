@@ -207,7 +207,6 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
 		morph_data.center_clip = getJsonNodeFromArray(*morph_center_array, 1)->value.toString();
 
 		auto morph_shapes_array = getJsonNode(*morph_obj, "MorphShape");
-        int shapes_array_size = 0;
 		morph_data.bounds_min = glm::vec2(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 		morph_data.bounds_max = glm::vec2(std::numeric_limits<float>::min(), std::numeric_limits<float>::min());
 
@@ -226,7 +225,6 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
 			morph_data.bounds_max.y = std::max(morph_data.bounds_max.y, cur_pt.y);
 
 			morph_data.morph_clips.push_back(std::make_pair(cur_clip, cur_pt));
-            shapes_array_size++;
 		}
 		
 		morph_data.morph_res = static_cast<int>(node_morph_res->value.toNumber());
@@ -245,17 +243,17 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
 
 		std::string raw_str = node_morph_space->value.toString();
 		auto raw_bytes = Base64Lib::base64_decode(raw_str);
-		for (size_t j = 0; j < shapes_array_size; j++)
+		for (size_t j = 0; j < morph_data.morph_clips.size(); j++)
 		{
 			int space_size = morph_data.morph_res * morph_data.morph_res;
 			int byte_idx = j * space_size;
 			std::vector<uint8_t> space_data;
 			space_data.resize(space_size);
-			std::memcpy(space_data.data(), raw_bytes.data() + byte_idx, space_size);
+			std::memcpy(space_data.data(), raw_bytes.data() + byte_idx, space_size * sizeof(uint8_t));
 			morph_data.morph_spaces.push_back(space_data);
 		}
 
-		morph_data.weights.resize(shapes_array_size);        
+		morph_data.weights.resize( morph_data.morph_clips.size());        
     };
 
     // Load in MetaData types
