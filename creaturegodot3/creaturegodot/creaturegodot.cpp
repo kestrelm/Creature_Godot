@@ -91,6 +91,7 @@ CreatureGodot::CreatureGodot() {
     anim_frame = 0.0f;
     indices_process_mode = INDICES_MODE_NONE;    
     reload_data = false;
+    run_morph_targets = false;
 }
 
 bool 
@@ -297,7 +298,18 @@ void CreatureGodot::update_animation(float delta)
             processEvents();
         }
 
-        manager->Update(delta * anim_speed);
+		bool morph_targets_valid = false;
+		if (run_morph_targets && metadata) {
+			morph_targets_valid = metadata->getMorphData().isValid();
+		}
+
+        auto real_delta = delta * anim_speed;
+		if (morph_targets_valid) {
+			metadata->updateMorphStep(manager.get(), real_delta);
+		}
+		else {
+            manager->Update(real_delta);
+		}
 
         if((old_time > manager->getActualRunTime()) && has_events)
         {
@@ -682,6 +694,36 @@ Vector<String> CreatureGodot::get_anim_clips() const
     return ret_names;
 }
 
+
+void CreatureGodot::set_morph_targets_active(bool flag_in)
+{
+    run_morph_targets = flag_in;
+}
+
+bool CreatureGodot::get_morph_targets_active() const
+{
+    return run_morph_targets;
+}
+
+void CreatureGodot::set_morph_targets_pt(const Vector2& pt_in, const Vector2& base_pt, float radius)
+{
+    // transform to local coords
+	auto char_base_pos = get_transform().xform_inv(base_pt);
+	auto char_pt_pos = get_transform().xform_inv(pt_in);
+
+    if(metadata)
+    {
+		if (metadata->getMorphData().isValid())
+		{
+			metadata->computeMorphWeightsWorld(
+				glm::vec2(char_pt_pos.x, -char_pt_pos.y),
+				glm::vec2(char_base_pos.x, -char_base_pos.y),
+				radius
+			);
+		}        
+    }
+}
+
 void CreatureGodot::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("set_color","color"),&CreatureGodot::set_color);
@@ -729,6 +771,10 @@ void CreatureGodot::_bind_methods() {
     ClassDB::bind_method(D_METHOD("remove_active_item_swap"),&CreatureGodot::remove_active_item_swap);
     
     ClassDB::bind_method(D_METHOD("set_anchor_points_active"),&CreatureGodot::set_anchor_points_active);
+
+    ClassDB::bind_method(D_METHOD("set_morph_targets_active"),&CreatureGodot::set_morph_targets_active);
+    ClassDB::bind_method(D_METHOD("get_morph_targets_active"),&CreatureGodot::get_morph_targets_active);
+    ClassDB::bind_method(D_METHOD("set_morph_targets_pt"),&CreatureGodot::set_morph_targets_pt);
     
     ClassDB::bind_method(D_METHOD("make_point_cache"),&CreatureGodot::make_point_cache);
 

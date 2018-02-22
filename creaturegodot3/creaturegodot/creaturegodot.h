@@ -25,6 +25,7 @@ class CreatureGodot :  public Node2D {
     String anim_name;
     String skinswap_name;
     bool reload_data;
+    bool run_morph_targets;
 
     const int INDICES_MODE_NONE = 0;
     const int INDICES_MODE_ORDER = 1;
@@ -112,6 +113,11 @@ public:
     String get_anim_name() const;
 
     Vector<String> get_anim_clips() const;
+
+    void set_morph_targets_active(bool flag_in);
+    bool get_morph_targets_active() const;
+
+    void set_morph_targets_pt(const Vector2& pt_in, const Vector2& base_pt, float radius);
 
     //editor stuff
 

@@ -131,17 +131,7 @@ namespace CreatureModule
     		computeMorphWeightsNormalised(normal_pt);
     	}
 
-    	void updateMorphStep(CreatureModule::CreatureManager * manager_in, float delta_step);        
-
-    protected:
-
-        const std::vector<int> * sampleOrder(const std::string& anim_name, int time_in) const;
-
-        std::unordered_map<int, std::pair<int, int>> mesh_map;
-        std::unordered_map<std::string, std::unordered_map<int, std::vector<int>>> anim_order_map;
-        std::unordered_map<std::string, std::unordered_map<int, std::pair<std::string, bool>>> anim_events_map;
-        std::unordered_map<std::string, std::unordered_set<std::string>> skin_swaps;
-        bool is_valid;
+    	void updateMorphStep(CreatureModule::CreatureManager * manager_in, float delta_step);    
 
     	struct MorphData
     	{
@@ -160,6 +150,21 @@ namespace CreatureModule
     			return (morph_spaces.empty() == false);
     		}
     	};
+
+		MorphData& getMorphData() {
+			return morph_data;
+		}
+
+    protected:
+
+        const std::vector<int> * sampleOrder(const std::string& anim_name, int time_in) const;
+
+        std::unordered_map<int, std::pair<int, int>> mesh_map;
+        std::unordered_map<std::string, std::unordered_map<int, std::vector<int>>> anim_order_map;
+        std::unordered_map<std::string, std::unordered_map<int, std::pair<std::string, bool>>> anim_events_map;
+        std::unordered_map<std::string, std::unordered_set<std::string>> skin_swaps;
+        bool is_valid;
+
     	MorphData morph_data;
 
     };
