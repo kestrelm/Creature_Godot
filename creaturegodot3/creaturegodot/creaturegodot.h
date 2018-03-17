@@ -125,7 +125,7 @@ public:
     virtual Point2 edit_get_pivot() const;
     virtual bool edit_has_pivot() const;
 
-    virtual Rect2 get_item_rect() const;
+    virtual Rect2 _edit_get_rect() const;
 };
 
 #endif

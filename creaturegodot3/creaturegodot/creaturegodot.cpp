@@ -370,7 +370,7 @@ void CreatureGodot::update_animation(float delta)
     }
 }
 
-Rect2 CreatureGodot::get_item_rect() const {
+Rect2 CreatureGodot::_edit_get_rect() const {
 
 
     if (rect_cache_dirty){
