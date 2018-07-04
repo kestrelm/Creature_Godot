@@ -443,7 +443,10 @@ void CreatureGodot::_notification(int p_what) {
                 use_meta_indices ? real_meta_indices : indices,
                 points,
                 fill_colors,
-                uvs,texture.is_valid()?texture->get_rid():RID()
+                uvs,
+                Vector<int>(),
+                Vector<float>(),
+                texture.is_valid()?texture->get_rid():RID()
             );
 
         } break;
