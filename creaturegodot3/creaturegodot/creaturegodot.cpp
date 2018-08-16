@@ -255,10 +255,10 @@ void CreatureGodot::update_colors()
             auto cur_alpha = cur_region->getOpacity() / 100.0f;
             for (auto i = start_pt_index; i <= end_pt_index; i++)
             {
-                fill_colors[i].r = color.r * cur_alpha;
-                fill_colors[i].g = color.g * cur_alpha;
-                fill_colors[i].b = color.b * cur_alpha;
-                fill_colors[i].a = color.a * cur_alpha;
+                fill_colors.write[i].r = color.r * cur_alpha;
+                fill_colors.write[i].g = color.g * cur_alpha;
+                fill_colors.write[i].b = color.b * cur_alpha;
+                fill_colors.write[i].a = color.a * cur_alpha;
             }
         }
     }
@@ -337,7 +337,7 @@ void CreatureGodot::update_animation(float delta)
         auto cur_indices = manager->GetCreature()->GetGlobalIndices();
         for(size_t i = 0; i < indices.size(); i++)
         {
-            indices[i] = cur_indices[i];
+            indices.write[i] = cur_indices[i];
         }
 
         // MetaData indices processing        
@@ -358,11 +358,11 @@ void CreatureGodot::update_animation(float delta)
         {
             glm::float32 cur_x = cur_pts[i * 3];
             glm::float32 cur_y = cur_pts[i * 3 + 1];
-            points[i] = Vector2(cur_x, -cur_y);
+            points.write[i] = Vector2(cur_x, -cur_y);
             
             glm::float32 cur_u = cur_uvs[i * 2];
             glm::float32 cur_v = cur_uvs[i * 2 + 1];
-            uvs[i] = Vector2(cur_u, cur_v);
+            uvs.write[i] = Vector2(cur_u, cur_v);
 
         }
         
@@ -609,7 +609,7 @@ void CreatureGodot::process_skinswap()
         render_composition,
         [&](int idx, int value)
         {
-            meta_indices[idx] = value;
+            meta_indices.write[idx] = value;
         },
         real_indices_size
     );
@@ -623,7 +623,7 @@ void CreatureGodot::process_skinswap()
 
         for(int i = 0; i < real_indices_size; i++)
         {
-            real_meta_indices[i] = meta_indices[i];
+            real_meta_indices.write[i] = meta_indices[i];
         }
     }
 }
@@ -634,7 +634,7 @@ void CreatureGodot::process_layerorder(int time_in)
         manager->GetCreature()->GetGlobalIndices(),
         [&](int idx, int value)
         {
-            meta_indices[idx] = value;            
+            meta_indices.write[idx] = value;            
         },
         manager->GetCreature()->GetTotalNumIndices(),
         manager->GetActiveAnimationName(),
@@ -648,7 +648,7 @@ void CreatureGodot::process_layerorder(int time_in)
 
     for(int i = 0; i < real_meta_indices.size(); i++)
     {
-        real_meta_indices[i] = meta_indices[i];
+        real_meta_indices.write[i] = meta_indices[i];
     }
 }
 
