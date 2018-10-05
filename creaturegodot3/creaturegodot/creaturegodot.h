@@ -2,7 +2,6 @@
 #ifndef CREATURE_GODOT_H
 #define CREATURE_GODOT_H
 
-#include "reference.h"
 #include "scene/2d/node_2d.h"
 #include "CreatureModule.h"
 #include "CreatureMetaData.h"

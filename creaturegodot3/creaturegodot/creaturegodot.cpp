@@ -1,6 +1,5 @@
 #include "creaturegodot.h"
-#include "project_settings.h"
-#include "engine.h"
+#include <core/engine.h>
 #include <string>
 #include <iostream>
 #include <fstream>
