@@ -620,7 +620,10 @@ meshRenderRegion::meshRenderRegion(glm::uint32 * indices_in,
     tag_id = -1;
 	uv_level = 0;
 	opacity = 100.0f;
-    
+    red = 100.0f;
+	green = 100.0f;
+	blue = 100.0f;
+
     initUvWarp();
 }
 
@@ -967,6 +970,36 @@ float
 meshRenderRegion::getOpacity() const
 {
 	return opacity;
+}
+
+void meshRenderRegion::setRed(float value_in)
+{
+	red = value_in;
+}
+
+float meshRenderRegion::getRed() const
+{
+	return red;
+}
+
+void meshRenderRegion::setGreen(float value_in)
+{
+	green = value_in;
+}
+
+float meshRenderRegion::getGreen() const
+{
+	return green;
+}
+
+void meshRenderRegion::setBlue(float value_in)
+{
+	blue = value_in;
+}
+
+float meshRenderRegion::getBlue() const
+{
+	return blue;
 }
 
 glm::vec2
@@ -2187,6 +2220,9 @@ meshOpacityCacheManager::setValuesAtTime(int time_in,
 	for (auto cur_iter : regions_map) {
 		meshOpacityCache new_data(cur_iter.second->getName());
 		new_data.setOpacity(cur_iter.second->getOpacity());
+		new_data.setRed(cur_iter.second->getRed());
+		new_data.setGreen(cur_iter.second->getGreen());
+		new_data.setBlue(cur_iter.second->getBlue());
 
 		cache_list.push_back(new_data);
 	}
@@ -2225,6 +2261,13 @@ meshOpacityCacheManager::retrieveValuesAtTime(float time_in,
 		meshRenderRegion * set_region = regions_map[cur_key];
 		float final_opacity = base_data.getOpacity();
 		set_region->setOpacity(final_opacity);
+
+		float final_red = base_data.getRed();
+		float final_green = base_data.getGreen();
+		float final_blue = base_data.getBlue();
+		set_region->setRed(final_red);
+		set_region->setGreen(final_green);
+		set_region->setBlue(final_blue);        
 	}
 
 	data_lock.unlock();

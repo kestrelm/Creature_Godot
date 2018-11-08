@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
+#include <tuple>
 #include <utility>
 #include <string>
 #include "glm.hpp"
@@ -12,6 +13,7 @@ class meshRenderBoneComposition;
 
 namespace CreatureModule {
     class CreatureManager;
+	class CreatureAnimation;
 }
 
 namespace CreatureModule
@@ -38,6 +40,10 @@ namespace CreatureModule
             const std::string& anim_name,
             int time_in
         );
+
+		void updateRegionColors(
+			std::unordered_map<std::string, 
+			std::shared_ptr<CreatureModule::CreatureAnimation>>& animations);
 
         bool addSkinSwap(const std::string& swap_name, const std::unordered_set<std::string>& set_in);
 
@@ -164,6 +170,7 @@ namespace CreatureModule
         std::unordered_map<std::string, std::unordered_map<int, std::vector<int>>> anim_order_map;
         std::unordered_map<std::string, std::unordered_map<int, std::pair<std::string, bool>>> anim_events_map;
         std::unordered_map<std::string, std::unordered_set<std::string>> skin_swaps;
+		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::tuple<int, uint8_t, uint8_t, uint8_t>>>> anim_region_colors;
         bool is_valid;
 
     	MorphData morph_data;

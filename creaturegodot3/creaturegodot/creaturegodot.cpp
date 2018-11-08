@@ -252,11 +252,15 @@ void CreatureGodot::update_colors()
             auto start_pt_index = cur_region->getStartPtIndex();
             auto end_pt_index = cur_region->getEndPtIndex();
             auto cur_alpha = cur_region->getOpacity() / 100.0f;
+    		auto cur_red = cur_region->getRed() / 100.0f;
+    		auto cur_green = cur_region->getGreen() / 100.0f;
+    		auto cur_blue = cur_region->getBlue() / 100.0f;
+
             for (auto i = start_pt_index; i <= end_pt_index; i++)
             {
-                fill_colors.write[i].r = color.r * cur_alpha;
-                fill_colors.write[i].g = color.g * cur_alpha;
-                fill_colors.write[i].b = color.b * cur_alpha;
+                fill_colors.write[i].r = color.r * cur_red * cur_alpha;
+                fill_colors.write[i].g = color.g * cur_green * cur_alpha;
+                fill_colors.write[i].b = color.b * cur_blue * cur_alpha;
                 fill_colors.write[i].a = color.a * cur_alpha;
             }
         }
@@ -508,6 +512,12 @@ void CreatureGodot::set_metadata_filename(String filename_in)
     metadata_filename = filename_in;
     metadata = std::unique_ptr<CreatureModule::CreatureMetaData>(
         new CreatureModule::CreatureMetaData(str_stream.str()));
+
+    // Load Animated Region Colors
+    if(manager)
+    {
+        metadata->updateRegionColors(manager->GetAllAnimations());
+    }
 }
 
 String CreatureGodot::get_metadata_filename() const

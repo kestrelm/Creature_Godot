@@ -195,6 +195,51 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
         }
     };
 
+    auto parseAnimatedRegionColors = [this](JsonNode * region_colors_node)
+    {
+		for (auto it = JsonBegin(region_colors_node->value);
+			it != JsonEnd(region_colors_node->value); ++it)
+		{
+			auto anim_name = it->key;
+			auto regions_node = *it;
+			std::unordered_map<std::string, std::vector<std::tuple<int, uint8_t, uint8_t, uint8_t>>> regions_anim;
+			for (auto r_it = JsonBegin(regions_node->value); r_it != JsonEnd(regions_node->value); ++r_it)
+			{
+				auto r_name = r_it->key;
+				auto b64_data = r_it->value.toString();
+				// Data format: A list of std::tuple<int, uint8_t, uint8_t, uint8_t>
+				auto bytes_data = Base64Lib::base64_decode(b64_data);
+				int chunk_size = sizeof(int) + (sizeof(uint8_t) * 3);
+				int chunk_num = (int)bytes_data.size() / chunk_size;
+				std::vector<std::tuple<int, uint8_t, uint8_t, uint8_t>> colors_anim;
+				for (int m = 0; m < chunk_num; m++)
+				{
+					uint8_t * base_ptr = &(bytes_data.data()[m * chunk_size]);
+					uint8_t * read_ptr = base_ptr;
+					int frame_val = 0;
+					uint8_t r_val = 0, g_val = 0, b_val = 0;
+					
+					std::memcpy(&frame_val, read_ptr, sizeof(int));
+					read_ptr += sizeof(int);
+
+					std::memcpy(&r_val, read_ptr, sizeof(uint8_t));
+					read_ptr += sizeof(uint8_t);
+
+					std::memcpy(&g_val, read_ptr, sizeof(uint8_t));
+					read_ptr += sizeof(uint8_t);
+
+					std::memcpy(&b_val, read_ptr, sizeof(uint8_t));
+					read_ptr += sizeof(uint8_t);
+
+					colors_anim.push_back(std::make_tuple(frame_val, r_val, g_val, b_val));
+				}
+				regions_anim[r_name] = colors_anim;
+			}
+
+			anim_region_colors[anim_name] = regions_anim;
+		}
+    };
+
     auto parseMorphTargets = [this, getJsonNode, getJsonNodeFromArray]
     (
         JsonNode * node_morph_targets, 
@@ -299,6 +344,10 @@ CreatureModule::CreatureMetaData::CreatureMetaData(const std::string& json_str)
         else if(cur_key == "MorphSpace")
         {
             node_morph_space = cur_node;           
+        }
+        else if(cur_key == "AnimRegionColors")
+        {
+            parseAnimatedRegionColors(cur_node);
         }
 
         json_base = json_base->next;
@@ -432,6 +481,54 @@ void CreatureModule::CreatureMetaData::updateIndicesAndPoints(
         // Nothing changded, just copy from source
         copyIndices(src_indices, 0, num_indices);
     }
+}
+
+void CreatureModule::CreatureMetaData::updateRegionColors(
+	std::unordered_map<std::string, 
+	std::shared_ptr<CreatureModule::CreatureAnimation>>& animations)
+{
+		for (auto& cur_pair : animations)
+		{
+			auto& clip_name = cur_pair.first;
+			auto& clip_anim = cur_pair.second;
+			if (anim_region_colors.count(clip_name) > 0)
+			{
+				const std::unordered_map<std::string, std::vector<std::tuple<int, uint8_t, uint8_t, uint8_t>>>& clip_regions_data = 
+					anim_region_colors.at(clip_name);
+				auto& opacity_cache = clip_anim->getOpacityCache();
+				std::vector<std::vector<meshOpacityCache> >& opacity_table = opacity_cache.getCacheTable();
+				for (int m = opacity_cache.getStartTime(); m <= opacity_cache.getEndime(); m++)
+				{
+					auto idx = opacity_cache.getIndexByTime(m);
+					auto& regions_data = opacity_table[idx];
+					for (auto& cur_region : regions_data)
+					{
+						if (clip_regions_data.count(cur_region.getKey()) > 0)
+						{
+							const std::vector<std::tuple<int, uint8_t, uint8_t, uint8_t>>& read_anim_data = 
+								clip_regions_data.at(cur_region.getKey());
+							const auto& read_colors_data = read_anim_data.at(idx);
+							int frame_val = std::get<0>(read_colors_data);
+							uint8_t r_val = std::get<1>(read_colors_data);
+							uint8_t g_val = std::get<2>(read_colors_data);
+							uint8_t b_val = std::get<3>(read_colors_data);
+							if (frame_val == m)
+							{
+								// check to see the frames match, then set
+								auto getColorFloat = [this](uint8_t val_in)
+								{
+									return static_cast<float>(val_in) / 255.0f * 100.0f;
+								};
+
+								cur_region.setRed(getColorFloat(r_val));
+								cur_region.setGreen(getColorFloat(g_val));
+								cur_region.setBlue(getColorFloat(b_val));
+							}
+						}
+					}
+				}
+			}
+		}    
 }
 
 void CreatureModule::CreatureMetaData::updateMorphStep(
