@@ -255,7 +255,19 @@ void CreatureGodot::update_colors()
     		auto cur_red = cur_region->getRed() / 100.0f;
     		auto cur_green = cur_region->getGreen() / 100.0f;
     		auto cur_blue = cur_region->getBlue() / 100.0f;
-
+            // Check for custom color overrides
+            if(!custom_region_colors.empty()) {
+                auto c_iter = custom_region_colors.find(cur_region->getName());
+                if(c_iter != custom_region_colors.end())
+                {
+                    auto& custom_color = c_iter->second;
+                    cur_red = custom_color.r;
+                    cur_green = custom_color.g;
+                    cur_blue = custom_color.b;
+                    cur_alpha = custom_color.a;
+                }
+            }
+            // Write final colors
             for (auto i = start_pt_index; i <= end_pt_index; i++)
             {
                 fill_colors.write[i].r = color.r * cur_red * cur_alpha;
@@ -742,6 +754,20 @@ void CreatureGodot::set_morph_targets_pt(const Vector2& pt_in, const Vector2& ba
     }
 }
 
+void CreatureGodot::set_custom_region_color(String region_name, Color color_in)
+{
+    custom_region_colors[std::string(region_name.utf8().ptr())] = color_in;
+}
+
+void CreatureGodot::clear_custom_region_color(String region_name)
+{
+    auto c_iter = custom_region_colors.find(std::string(region_name.utf8().ptr()));
+    if(c_iter != custom_region_colors.end())
+    {
+        custom_region_colors.erase(c_iter);
+    }
+}
+
 void CreatureGodot::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("set_color","color"),&CreatureGodot::set_color);
@@ -797,7 +823,10 @@ void CreatureGodot::_bind_methods() {
     ClassDB::bind_method(D_METHOD("make_point_cache"),&CreatureGodot::make_point_cache);
 
     ClassDB::bind_method(D_METHOD("get_bone_pos"),&CreatureGodot::get_bone_pos);
-    
+
+    ClassDB::bind_method(D_METHOD("set_custom_region_color"),&CreatureGodot::set_custom_region_color);
+    ClassDB::bind_method(D_METHOD("clear_custom_region_color"),&CreatureGodot::clear_custom_region_color);
+
     ADD_PROPERTY( PropertyInfo(Variant::STRING,"anim_name"), "set_anim_name", "get_anim_name");
     ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_frame"), "set_anim_frame", "get_anim_frame");
     ADD_PROPERTY( PropertyInfo(Variant::REAL,"anim_speed"), "set_anim_speed", "get_anim_speed");

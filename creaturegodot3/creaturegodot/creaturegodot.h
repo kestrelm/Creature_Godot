@@ -6,6 +6,7 @@
 #include "CreatureModule.h"
 #include "CreatureMetaData.h"
 #include <memory>
+#include <unordered_map>
 
 class CreatureGodot :  public Node2D {
 
@@ -36,6 +37,7 @@ class CreatureGodot :  public Node2D {
     mutable Rect2 item_rect;
     std::unique_ptr<CreatureModule::CreatureManager> manager;
     std::unique_ptr<CreatureModule::CreatureMetaData> metadata;
+    std::unordered_map<std::string, Color> custom_region_colors;
 
     void _set_texture_rotationd(float p_rot);
     float _get_texture_rotationd() const;
@@ -117,6 +119,9 @@ public:
     bool get_morph_targets_active() const;
 
     void set_morph_targets_pt(const Vector2& pt_in, const Vector2& base_pt, float radius);
+
+    void set_custom_region_color(String region_name, Color color_in);
+    void clear_custom_region_color(String region_name);
 
     //editor stuff
 
