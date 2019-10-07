@@ -7,6 +7,7 @@
 #include <tuple>
 #include <utility>
 #include <string>
+#include <memory>
 #include "glm.hpp"
 
 class meshRenderBoneComposition;
