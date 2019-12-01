@@ -1493,7 +1493,6 @@ namespace CreatureModule {
         if(animations.count(animation_name_in) <= 0)
         {
             std::cerr<<"CreatureManager::PoseCreature() - Animation not found: "<<animation_name_in<<std::endl;
-            throw "CreatureManager::PoseCreature() - Invalid animation name!";
             return;
         }
         
