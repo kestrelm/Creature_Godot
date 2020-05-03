@@ -234,6 +234,39 @@ Here, we have a polygon node object that is driven by the W, A, S, D keys. The o
 ### Grabbing the position along a bone for attachments
 **get_bone_pos( bone_name, slide_factor)** - Returns a Vector2 that denotes the position along the 2 end points of a given bone in world space. The slide_factor determins how far along the bone you are. So if the value is 0.5, you are retrieving the mid point of the bone. A value of 0 gives you the starting point, a value of 1 gives you the end point.
 
+### Export Issues for CreatureGodot
+If you are facing export issues from Godot Engine, this issues thread [here](https://github.com/kestrelm/Creature_Godot/issues/16) might help.
+
+Here is the remedy from **alperc84** :
+
+My Godot 3.1.1 builds works in windows 10 and android without any problem. I am adding json file to my build and copying it to **user://** folder in runtime and using it from **user://** (not **res://**) 
+Do the following:
+
+Go **export->resource** settings in Godot and add ***.json** to filters to export non-resource files (this will add your json file to **res://**) I mean you adding your json file to your build with this way.
+But we need to export json file to **user://** directory for access in correct way.
+
+Create a root node (2d scene) attach a script for it:
+
+```
+extends Node2D
+
+func _ready():
+	var dir = Directory.new()
+	dir.copy("res://some.json","user://some.json")
+```
+
+This script will copy your json from **res://** to **user://** in runtime (you can add some error handling, check file if exist or something like that if you want)
+
+Now you can add creaturegodot node to your root node and use **user://some.json** instead of **res://some.json** in Assetfilename.
+
+When you launch the game your json file will be copied to **user://** and will work without any problem in android and windows builds (probably for mac and linux too). Plus, you don't have to put your json file next to your final exe. Because json file in your game already now.
+
+You will find you json in this directory when you launch your game if you did the things correctly.
+**C:\Users{username}\AppData\Roaming\Godot\app_userdata{projectname}\some.json**
+I don't know android **user://** directory location but it's working in same way.
+
+**IMPORTANT:** Do not forget to enable Write External Storage permission in your android export **settings ->Permissions (no write permission = no json)**
+
 ## License
 The **Creature Runtimes** operate under 2 License types depending on whether you own a Licensed copy of [Creature](https://creature.kestrelmoon.com) or not.
 - **People who own a licensed copy of Creature:** You use the standard **Creature License** included with the runtime code. **TLDR:** You are free to publish/modify/sell your product with the Creature runtimes without needing to state you are using the runtimes/put the copyright notice in your code/app. If you already have been using the Creature runtimes as a licensed owner of Creature, nothing changes :)
