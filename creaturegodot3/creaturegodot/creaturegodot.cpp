@@ -1,4 +1,5 @@
 #include "creaturegodot.h"
+#include <core/bind/core_bind.h>
 #include <core/engine.h>
 #include <string>
 #include <iostream>
@@ -12,8 +13,9 @@ static std::map<std::string, std::shared_ptr<CreatureModule::CreatureLoadDataPac
 
 static bool is_file_exist(const char *fileName)
 {
-    std::ifstream infile(fileName);
-    return infile.good();
+	Ref<_File> file;
+	file.instance();
+	return file->file_exists(fileName);
 }
 
 static std::string GetAnimationToken(const std::string& filename_in, const std::string& name_in)
@@ -41,7 +43,14 @@ LoadDataPacket(const std::string& filename_in)
         std::make_shared<CreatureModule::CreatureLoadDataPacket>();
 
     // load regular JSON
-    CreatureModule::LoadCreatureJSONData(filename_in, *new_packet);
+    Ref<_File> file;
+	file.instance();
+	if (file->open(filename_in.c_str(), _File::READ) == Error::OK) {
+		String data = file->get_as_text();
+		std::string text(data.utf8().get_data());
+		CreatureModule::LoadCreatureJSONDataFromString(text, *new_packet);
+		file->close();
+	}    
     global_load_data_packets[filename_in] = new_packet;
 
     return true;
@@ -98,12 +107,10 @@ CreatureGodot::CreatureGodot() {
 bool 
 CreatureGodot::load_json(const String filename_in)
 {
-    auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
 #ifdef _CREATURE_DEBUG        
     std::cout<<"CreatureGodot::load_json() - Loading file: "<<global_path.utf8()<<std::endl;
 #endif    
-    std::string load_filename(global_path.utf8());
-    auto can_load = LoadDataPacket(load_filename);
+    auto can_load = LoadDataPacket(filename_in.utf8().get_data());
     if(!can_load)
     {
 #ifdef _CREATURE_DEBUG        
@@ -114,7 +121,7 @@ CreatureGodot::load_json(const String filename_in)
 #ifdef _CREATURE_DEBUG        
     std::cout<<"CreatureGodot::load_json() - Finished loading file: "<<load_filename<<std::endl;
 #endif
-    auto json_data = global_load_data_packets[load_filename];
+    auto json_data = global_load_data_packets[filename_in.utf8().get_data()];
     auto cur_creature = std::shared_ptr<CreatureModule::Creature>(new CreatureModule::Creature(*json_data));    
     manager = std::unique_ptr<CreatureModule::CreatureManager> (new CreatureModule::CreatureManager(cur_creature));
     
@@ -125,8 +132,8 @@ CreatureGodot::load_json(const String filename_in)
 #ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() - Trying to load animation: "<<cur_name<<std::endl;
 #endif        
-        load_animation(load_filename, cur_name);
-        add_loaded_animation(manager.get(), load_filename, cur_name);
+        load_animation(filename_in.utf8().get_data(), cur_name);
+        add_loaded_animation(manager.get(), filename_in.utf8().get_data(), cur_name);
 #ifdef _CREATURE_DEBUG        
         std::cout<<"CreatureGodot::load_json() - Loaded animation: "<<cur_name<<std::endl;
 #endif        
@@ -499,7 +506,6 @@ String CreatureGodot::get_asset_filename() const
 
 void CreatureGodot::set_metadata_filename(String filename_in)
 {
-    auto global_path = ProjectSettings::get_singleton()->globalize_path(filename_in);
 #ifdef _CREATURE_DEBUG        
     std::cout<<"CreatureGodot - Loading MetaData: "<<global_path.utf8()<<std::endl;
 #endif    
@@ -510,20 +516,23 @@ void CreatureGodot::set_metadata_filename(String filename_in)
         return;
     }
 
-    if(!is_file_exist(global_path.utf8()))
+    if(!is_file_exist(filename_in.utf8()))
     {
         return;
     }
 
-    std::ifstream read_file;
-    read_file.open(global_path.utf8());
-    std::stringstream str_stream;
-    str_stream << read_file.rdbuf();
-    read_file.close();
+	Ref<_File> file;
+	file.instance();
+    std::string metaStr;
+	if (file->open(filename_in.c_str(), _File::READ) == Error::OK) {
+		String data = file->get_as_text();
+		metaStr = std::string(data.utf8().get_data());
+		file->close();
+	}    
 
     metadata_filename = filename_in;
     metadata = std::unique_ptr<CreatureModule::CreatureMetaData>(
-        new CreatureModule::CreatureMetaData(str_stream.str()));
+        new CreatureModule::CreatureMetaData(metaStr));
 
     // Load Animated Region Colors
     if(manager)
